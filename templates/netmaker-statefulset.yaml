@@ -96,12 +96,8 @@ spec:
           value: {{ index .Values "postgresql-ha" "postgresql" "password" }}
         - name: DATABASE
           value: postgres
-      {{- if or (not .Values.wireguard.enabled) (.Values.wireguard.kernel) }}
-        image: gravitl/netmaker:v0.8.4
-      {{- else }}
-        image: gravitl/netmaker:v0.8.4-userspace
-      {{- end }}
-        imagePullPolicy: Always
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
         name: {{ include "netmaker.fullname" . }}
         ports:
         - containerPort: {{ .Values.service.restPort }}
