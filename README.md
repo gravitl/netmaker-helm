@@ -24,6 +24,7 @@ Furthermore, the chart will by default install and use a postgresql cluster as i
 
 ```
 helm install ./netmaker --generate-name \ # generate a random id for the deploy 
+--set wireguard.kernel=true \ # set wireguard to kernel mode (false by default)
 --set baseDomain=nm.example.com \ # the base wildcard domain to use for the netmaker api/dashboard/grpc ingress 
 --set replicas=3 \ # number of server replicas to deploy (3 by default) 
 --set ingress.enabled=true \ # deploy ingress automatically (requires nginx or traefik and cert-manager + letsencrypt) 
