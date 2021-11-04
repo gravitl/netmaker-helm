@@ -79,11 +79,16 @@ spec:
           value: Kubernetes
         - name: CORS_ALLOWED_ORIGIN
           value: '*'
-        - name: NODE_ID
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.name
+        {{- if eq .Values.database "etcd" }}
+        - name: ETCD_CA_CERT_PATH
+          value: {{ required "Must provide path of Etcd CA Cert in .Values.etcd.cacert." .Values.etcd.cacert }}
+        - name: ETCD_CERT_PATH
+          value: {{ required "Must provide path of Etcd Cert in .Values.etcd.cert." .Values.etcd.cert }}
+        - name: ETCD_KEY_PATH
+          value: {{ required "Must provide path of Etcd Key in .Values.etcd.key." .Values.etcd.key }}
+        {{- else}}
+        - name: DATABASE
+          value: postgres
         - name: SQL_HOST
           value: '{{ .Release.Name }}-postgresql-ha-pgpool.{{ .Release.Namespace }}.svc.cluster.local'
         - name: SQL_PORT
@@ -94,8 +99,12 @@ spec:
           value: {{ index .Values "postgresql-ha" "postgresql" "username" }}
         - name: SQL_PASS
           value: {{ index .Values "postgresql-ha" "postgresql" "password" }}
-        - name: DATABASE
-          value: postgres
+        {{- end}}
+        - name: NODE_ID
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         name: {{ include "netmaker.fullname" . }}

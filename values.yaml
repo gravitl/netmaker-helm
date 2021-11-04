@@ -11,7 +11,7 @@ image:
   # -- Pull Policy for images
   pullPolicy: Always
   # -- Override the image tag to pull 
-  tag: "v0.8.4-kube"
+  tag: "v0.8.6-kube"
 
 # -- override the name for netmaker objects 
 nameOverride: ""  
@@ -91,6 +91,12 @@ ingress:
     # -- grpc route subdomain
     grpc: 'grpc.'
 
+# -- choose from postgresql-ha or etcd. If etcd, will need to determine correct keys to mount
+database: "postgresql-ha"
+k8s:
+  # -- choose from default or k3s. Template will choose appropriate local certificate path
+  distribution: "default"
+
 wireguard:
   # -- whether or not to use WireGuard on server
   enabled: true
@@ -106,6 +112,7 @@ dns:
   storageSize: 128Mi
 
 postgresql-ha:
+  enabled: true
   postgresql:
     # -- postgres user to generate
     username: netmaker
@@ -118,3 +125,8 @@ postgresql-ha:
   persistence:
     # -- size of postgres DB
     size: 3Gi
+
+etcd:
+  cacert: ""
+  key: ""
+  cert: ""
