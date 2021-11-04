@@ -54,6 +54,8 @@ service:
 ingress:
   # -- attempts to configure ingress if true
   enabled: false
+  # -- type of ingress, either "nginx" or "traefik"
+  type: nginx
   tls:
     enabled: true
     issuerName: "letsencrypt-prod"
@@ -61,6 +63,9 @@ ingress:
     base:
       # -- annotation to generate ACME certs if available
       kubernetes.io/ingress.allow-http: "false"    
+    ui:
+      # -- Optional: additional annotations for nginx UI ingress
+      nginx: {}
     tls:
       # -- use acme cert if available
       kubernetes.io/tls-acme: "true"
