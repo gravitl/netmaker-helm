@@ -126,7 +126,3 @@ postgresql-ha:
     # -- size of postgres DB
     size: 3Gi
 
-etcd:
-  cacert: ""
-  key: ""
-  cert: ""
