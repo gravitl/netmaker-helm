@@ -51,7 +51,12 @@ service:
   # -- port for UI service
   uiPort: 80
 
+# -- FQDN suffix appended to URLs in statefulset and ingress, e.g. test.com
+baseDomain: ""
+
 ingress:
+  # -- class name of ingress, e.g. nginx-external
+  className: ""
   # -- attempts to configure ingress if true
   enabled: false
   # -- type of ingress, either "nginx" or "traefik"
