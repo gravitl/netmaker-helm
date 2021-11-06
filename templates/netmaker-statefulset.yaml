@@ -40,15 +40,15 @@ spec:
       containers:
       - env:
         - name: SERVER_API_CONN_STRING
-          value: api.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}:443
+          value: {{ .Values.ingress.hostPrefix.rest }}{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}:443
         - name: SERVER_GRPC_CONN_STRING
-          value: grpc.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}:443
+          value: {{ .Values.ingress.hostPrefix.grpc }}{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}:443
         - name: GRPC_SSL
           value: "on"
         - name: SERVER_HTTP_HOST
-          value: api.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
+          value: {{ .Values.ingress.hostPrefix.rest }}{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
         - name: SERVER_GRPC_HOST
-          value: grpc.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
+          value: {{ .Values.ingress.hostPrefix.grpc }}{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
         - name: API_PORT
           value: "8081"
         {{- if not .Values.wireguard.kernel }}
