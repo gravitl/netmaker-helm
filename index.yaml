@@ -14,7 +14,7 @@ entries:
     type: application
     urls:
     - https://gravitl.github.io/netmaker-helm/netmaker-0.2.0.tgz
-    version: 0.1.0
+    version: 0.2.0
   postgresql-ha:
   - annotations:
       category: Database
