@@ -36,24 +36,6 @@ kind: Service
 metadata:
   labels:
     {{- include "netmaker.labels" . | nindent 4 }}
-  name: '{{ include "netmaker.fullname" . }}-grpc'
-spec:
-  ports:
-  - name: rest
-    port: {{ .Values.service.grpcPort }}
-    protocol: TCP
-    targetPort: {{ .Values.service.grpcPort }}
-  selector:
-    app: '{{ include "netmaker.fullname" . }}'
-  sessionAffinity: None
-  type: {{ .Values.service.type }}
-{{- if .Values.wireguard.enabled }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    {{- include "netmaker.labels" . | nindent 4 }}
   name: '{{ include "netmaker.fullname" . }}-wireguard'
 spec:
   externalTrafficPolicy: Local
@@ -69,4 +51,3 @@ spec:
   {{- end }}
   selector:
     app: '{{ include "netmaker.fullname" . }}'
-{{- end }}
