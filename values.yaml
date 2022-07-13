@@ -11,7 +11,7 @@ image:
   # -- Pull Policy for images
   pullPolicy: Always
   # -- Override the image tag to pull 
-  tag: "v0.8.4-kube"
+  tag: "v0.14.5"
 
 # -- override the name for netmaker objects 
 nameOverride: ""  
@@ -38,6 +38,18 @@ ui:
   # -- how many UI replicas to create
   replicas: 2
 
+mq:
+  # -- how many MQTT replicas to create
+  replicas: 2
+  singlenode: true
+  storageSize: 128Mi
+
+
+dns:
+  # -- whether or not to deploy coredns
+  enabled: false
+  storageSize: 128Mi
+
 setIpForwarding:
   enabled: true
 
@@ -46,8 +58,8 @@ service:
   type: ClusterIP
   # -- port for API service
   restPort: 8081
-  # -- port for GRPC service
-  grpcPort: 443
+  # -- port for MQTT service
+  mqPort: 31883
   # -- port for UI service
   uiPort: 80
 
@@ -76,20 +88,13 @@ ingress:
       traefik.ingress.kubernetes.io/redirect-permanent: "true"
       # -- rule type
       traefik.ingress.kubernetes.io/rule-type: "PathPrefixStrip"
-    grpc:
-      nginx:
-        # -- annotation to use grpc protocol on grpc domain
-        nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
-      traefik:
-        # -- annotation to use grpc protocol on grpc domain
-        ingress.kubernetes.io/protocol: "h2c"
   hostPrefix:
     # -- ui route subdomain
     ui: 'dashboard.'
     # -- api (REST) route subdomain
     rest: 'api.'
-    # -- grpc route subdomain
-    grpc: 'grpc.'
+    # -- mqtt route subdomain
+    broker: 'broker.'
 
 wireguard:
   # -- whether or not to use WireGuard on server
@@ -98,12 +103,6 @@ wireguard:
   kernel: false
   # -- max number of networks that Netmaker will support if running with WireGuard enabled
   networkLimit: 10
-
-dns:
-  # -- whether or not to run with DNS (CoreDNS)
-  enabled: false
-  # -- volume size for DNS (only needs to hold one file)
-  storageSize: 128Mi
 
 postgresql-ha:
   postgresql:
@@ -117,4 +116,4 @@ postgresql-ha:
     replicaCount: 2
   persistence:
     # -- size of postgres DB
-    size: 3Gi
+    size: 1Gi

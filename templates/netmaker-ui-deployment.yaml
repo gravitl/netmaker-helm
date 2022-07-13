@@ -16,9 +16,9 @@ spec:
     spec:
       containers:
       - name: {{ include "netmaker.fullname" . }}-ui
-        image: gravitl/netmaker-ui:v0.8
+        image: gravitl/netmaker-ui:{{ .Values.image.tag }}
         ports:
-        - containerPort: {{ .Values.service.grpcPort }}
+        - containerPort: {{ .Values.service.uiPort }}
         env:
         - name: BACKEND_URL
           value: 'https://{{ .Values.ingress.hostPrefix.rest }}{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}'

@@ -15,8 +15,6 @@ spec:
       labels:
         app: {{ include "netmaker.fullname" . }}
     spec:
-      {{- if .Values.wireguard.enabled }}
-      {{- if .Values.setIpForwarding.enabled }}
       initContainers:
       - name: init-sysctl
         image: busybox
@@ -24,7 +22,6 @@ spec:
         command: ["sysctl", "-w", "net.ipv4.ip_forward=1"]
         securityContext:
           privileged: true
-      {{- end }}
       dnsPolicy: ClusterFirstWithHostNet
       affinity:
         podAntiAffinity:
@@ -36,27 +33,20 @@ spec:
                 values:
                 - {{ include "netmaker.fullname" . }}
             topologyKey: "kubernetes.io/hostname"
-      {{- end }}
       containers:
       - env:
+        - name: SERVER_NAME
+          value: broker.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
         - name: SERVER_API_CONN_STRING
           value: api.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}:443
-        - name: SERVER_GRPC_CONN_STRING
-          value: grpc.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}:443
-        - name: GRPC_SSL
-          value: "on"
         - name: SERVER_HTTP_HOST
           value: api.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
-        - name: SERVER_GRPC_HOST
-          value: grpc.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
         - name: API_PORT
           value: "8081"
         {{- if not .Values.wireguard.kernel }}
         - name: WG_QUICK_USERSPACE_IMPLEMENTATION
           value: wireguard-go
         {{- end }}
-        - name: GRPC_PORT
-          value: "443"
         {{- if .Values.dns.enabled }}
         - name: DNS_MODE
           value: "on"
@@ -66,13 +56,8 @@ spec:
         - name: DNS_MODE
           value: "off"
         {{- end }}
-        {{- if .Values.wireguard.enabled }}
         - name: CLIENT_MODE
           value: "on"
-        {{- else }}
-        - name: CLIENT_MODE
-          value: "off"
-        {{- end }}
         - name: MASTER_KEY
           value: {{ include "netmaker.masterKey" . }}
         - name: PLATFORM
@@ -96,13 +81,19 @@ spec:
           value: {{ index .Values "postgresql-ha" "postgresql" "password" }}
         - name: DATABASE
           value: postgres
+        - name: MQ_HOST
+          value: {{ include "netmaker.fullname" . }}-mqtt
+        - name: MQ_PORT
+          value: "{{ .Values.service.mqPort }}"
+        - name: MQ_SERVER_PORT
+          value: "1883"
+        - name: VERBOSITY
+          value: "3"
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         name: {{ include "netmaker.fullname" . }}
         ports:
         - containerPort: {{ .Values.service.restPort }}
-          protocol: TCP
-        - containerPort: {{ .Values.service.grpcPort }}
           protocol: TCP
       {{- if .Values.wireguard.enabled }}
         {{ $count := (add .Values.wireguard.networkLimit 1 | int) }}
@@ -111,18 +102,24 @@ spec:
           protocol: UDP      
         {{- end }}
       {{- end }}
-        resources: {}
-        {{- if .Values.wireguard.enabled }}
         securityContext:
           capabilities:
             add:
             - NET_ADMIN
-        {{- end }}
-      {{- if .Values.dns.enabled }}
+            - NET_RAW
+            - SYS_MODULE
         volumeMounts:
+        - mountPath: /etc/netmaker/
+          name: shared-certs
+        {{- if .Values.dns.enabled }}
         - name: {{ include "netmaker.fullname" . }}-dns-pvc
           mountPath: /root/config/dnsconfig
+        {{- end }}
       volumes:
+      - name: shared-certs
+        persistentVolumeClaim:
+          claimName: {{ include "netmaker.fullname" . }}-shared-certs-pvc
+      {{- if .Values.dns.enabled }}
       - name: {{ include "netmaker.fullname" . }}-dns-pvc
         persistentVolumeClaim:
           claimName: {{ include "netmaker.fullname" . }}-dns-pvc
