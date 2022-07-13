@@ -1,0 +1,145 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "netmaker.fullname" . }}-mqtt
+  labels:
+    app: {{ include "netmaker.fullname" . }}-mqtt
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "netmaker.fullname" . }}-mqtt
+  replicas:  {{ .Values.mq.replicas }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ include "netmaker.fullname" . }}-mqtt
+    spec:
+      {{- if .Values.mq.singlenode }}    
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: mqhost
+                operator: In
+                values:
+                - "true"
+      {{- end }}
+      containers:
+      - image: eclipse-mosquitto:2.0.11-openssl
+        imagePullPolicy: Always
+        name: mosquitto
+        livenessProbe:
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: 8883
+          timeoutSeconds: 1
+        name: mosquitto
+        ports:
+        - containerPort: 1883        
+          name: mqtt
+          protocol: TCP
+        - containerPort: 8883        
+          name: mqtt2
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: 8883
+          timeoutSeconds: 1
+        resources: {}
+        startupProbe:
+          failureThreshold: 30
+          periodSeconds: 5
+          successThreshold: 1
+          tcpSocket:
+            port: 8883
+          timeoutSeconds: 1
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /mosquitto/config/mosquitto.conf
+          name: mosquitto-config
+          subPath: mosquitto.conf
+        - mountPath: /mosquitto/certs
+          name: shared-certs
+      volumes:
+      - configMap:
+          name: {{ include "netmaker.fullname" . }}-mqtt-config
+        name: mosquitto-config
+      - name: shared-certs
+        persistentVolumeClaim:
+          claimName: {{ include "netmaker.fullname" . }}-shared-certs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "netmaker.fullname" . }}-mqtt
+spec:
+  ports:
+  - name: mqtt
+    port: 1883
+    protocol: TCP
+    targetPort: mqtt
+  - name: mqtt2
+    port: 8883
+    protocol: TCP
+    targetPort: mqtt2    
+  selector:
+    app: {{ include "netmaker.fullname" . }}-mqtt
+  sessionAffinity: None
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "netmaker.fullname" . }}-shared-certs-pvc
+spec:
+  storageClassName: {{ required "A valid .Values.RWXStorageClassName entry required! Specify an available RWX storage class." .Values.RWXStorageClassName}}
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.mq.storageSize }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+  name: {{ include "netmaker.fullname" . }}-mqtt-nodeport
+spec:
+  externalTrafficPolicy: Cluster
+  type: NodePort
+  selector:
+    app: {{ include "netmaker.fullname" . }}-mqtt
+  ports:
+  - port: {{ .Values.service.mqPort }}
+    nodePort: {{ .Values.service.mqPort }}
+    protocol: TCP
+    targetPort: 8883
+    name: nm-mqtt
+---
+apiVersion: v1
+data:
+  mosquitto.conf: |
+    per_listener_settings true
+    listener 8883
+    allow_anonymous false
+    require_certificate true
+    use_identity_as_username true
+    cafile /mosquitto/certs/root.pem
+    certfile /mosquitto/certs/server.pem
+    keyfile /mosquitto/certs/server.key
+    listener 1883
+    allow_anonymous true
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: {{ include "netmaker.fullname" . }}-mqtt
+    app.kubernetes.io/name: {{ include "netmaker.fullname" . }}-mqtt
+  name: {{ include "netmaker.fullname" . }}-mqtt-config
