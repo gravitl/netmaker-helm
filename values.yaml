@@ -41,7 +41,7 @@ ui:
 mq:
   # -- how many MQTT replicas to create
   replicas: 2
-  singlenode: true
+  singlenode: false
   storageSize: 128Mi
 
 

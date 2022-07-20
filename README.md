@@ -13,6 +13,11 @@ To run HA Netmaker on Kubernetes, your cluster must have the following:
 		- Nginx Ingress + LetsEncrypt/Cert-Manager
 		- Traefik Ingress + LetsEncrypt/Cert-Manager
 	- to generate automatically, make sure one of the two is configured for your cluster
+- Access to modify the Load Balancer for external traffic:
+	- By default, MQ is deployed with a NodePort, and DNS must point to this NodePort
+	- If deploying with default settings, you must modify the cluster load balancer so that it will load balancer 31883 --> 31883
+	- Alternatively, you can specify "singlenode=true" in your helm options. In this case, a node must be labelled with mqhost=true.
+		- If this option is selected, you do not have to modify your loadbalancer, but you MUST modify DNS settings to point broker.domain to the public IP of the node running MQ. Also note that this will not be an HA MQ deployment.
 
 Furthermore, the chart will by default install and use a postgresql cluster as its datastore: 
 
