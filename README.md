@@ -28,7 +28,8 @@ Furthermore, the chart will by default install and use a postgresql cluster as i
 ### Example Install
 
 ```
-helm install ./netmaker --generate-name \ # generate a random id for the deploy 
+helm repo add netmaker https://gravitl.github.io/netmaker-helm/
+helm install netmaker/netmaker --generate-name \ # generate a random id for the deploy 
 --set wireguard.kernel=true \ # set wireguard to kernel mode (false by default)
 --set baseDomain=nm.example.com \ # the base wildcard domain to use for the netmaker api/dashboard/mq ingress 
 --set replicas=3 \ # number of server replicas to deploy (3 by default) 
@@ -42,7 +43,7 @@ helm install ./netmaker --generate-name \ # generate a random id for the deploy
 
 ### Recommended Settings:
 A minimal HA install of Netmaker can be run with the following command:
-`helm install netmaker --generate-name --set baseDomain=nm.example.com --set RWXStorageClassName=nfs`
+`helm install netmaker/netmaker --generate-name --set baseDomain=nm.example.com --set RWXStorageClassName=nfs`
 `
 This install has some notable exceptions:
 - Ingress **must** be manually configured post-install (need to create valid Ingress with TLS)
