@@ -38,6 +38,7 @@ metadata:
     {{- else if .tls.enabled}}
     cert-manager.io/cluster-issuer: {{ .tls.issuerName }}
     {{- end }}
+    {{ (((.Values).ingress).annotations).ui }}
   {{- end }}
 spec:
   {{- if (not (eq .Values.ingress.className "traefik")) }}
@@ -96,6 +97,7 @@ metadata:
     {{- else if .tls.enabled}}
     cert-manager.io/cluster-issuer: {{ .tls.issuerName }}
     {{- end }}
+    {{ (((.Values).ingress).annotations).rest }}
   {{- end }}
 spec:
   {{- if (not (eq .Values.ingress.className "traefik")) }}
