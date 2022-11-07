@@ -2,21 +2,21 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# -- number of netmaker server replicas to create 
+# -- number of netmaker server replicas to create
 replicas: 3
 
 image:
-  # -- The image repo to pull Netmaker image from 
+  # -- The image repo to pull Netmaker image from
   repository: gravitl/netmaker
   # -- Pull Policy for images
   pullPolicy: Always
-  # -- Override the image tag to pull 
+  # -- Override the image tag to pull
   tag: "v0.14.5"
 
-# -- override the name for netmaker objects 
+# -- override the name for netmaker objects
 nameOverride: ""
 
-# -- override the full name for netmaker objects 
+# -- override the full name for netmaker objects
 fullnameOverride: ""
 
 serviceAccount:
@@ -79,7 +79,7 @@ ingress:
       # -- use acme cert if available
       kubernetes.io/tls-acme: "true"
     nginx:
-      # -- Redirect http to https 
+      # -- Redirect http to https
       nginx.ingress.kubernetes.io/ssl-redirect: 'true'
       # -- destination addr for route
       nginx.ingress.kubernetes.io/rewrite-target: /
@@ -101,8 +101,8 @@ ingress:
 wireguard:
   # -- whether or not to use WireGuard on server
   enabled: true
-  annotations: {}
   service:
+    annotations: {}
     serviceType: NodePort
   # -- whether or not to use Kernel WG (should be false unless WireGuard is installed on hosts).
   kernel: false
