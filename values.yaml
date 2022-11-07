@@ -103,7 +103,7 @@ wireguard:
   enabled: true
   annotations: {}
   service:
-    servicetype: NodePort
+    serviceType: NodePort
   # -- whether or not to use Kernel WG (should be false unless WireGuard is installed on hosts).
   kernel: false
   # -- max number of networks that Netmaker will support if running with WireGuard enabled
