@@ -14,7 +14,7 @@ image:
   tag: "v0.14.5"
 
 # -- override the name for netmaker objects 
-nameOverride: ""  
+nameOverride: ""
 
 # -- override the full name for netmaker objects 
 fullnameOverride: ""
@@ -32,7 +32,7 @@ podAnnotations: {}
 
 # -- pod security contect to add
 podSecurityContext: {}
-  # fsGroup: 2000
+# fsGroup: 2000
 
 ui:
   # -- how many UI replicas to create
@@ -70,9 +70,11 @@ ingress:
     enabled: true
     issuerName: "letsencrypt-prod"
   annotations:
+    ui: {}
+    rest: {}
     base:
       # -- annotation to generate ACME certs if available
-      kubernetes.io/ingress.allow-http: "false"    
+      kubernetes.io/ingress.allow-http: "false"
     tls:
       # -- use acme cert if available
       kubernetes.io/tls-acme: "true"
@@ -99,6 +101,9 @@ ingress:
 wireguard:
   # -- whether or not to use WireGuard on server
   enabled: true
+  annotations: {}
+  service:
+    serviceType: NodePort
   # -- whether or not to use Kernel WG (should be false unless WireGuard is installed on hosts).
   kernel: false
   # -- max number of networks that Netmaker will support if running with WireGuard enabled
