@@ -37,7 +37,7 @@ metadata:
   labels:
     {{- include "netmaker.labels" . | nindent 4 }}
   name: '{{ include "netmaker.fullname" . }}-wireguard'
-  {{- with .Values.service.annotations }}
+  {{- with .Values.wireguard.service.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
