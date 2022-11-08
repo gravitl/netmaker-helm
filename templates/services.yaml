@@ -39,7 +39,7 @@ metadata:
   name: '{{ include "netmaker.fullname" . }}-wireguard'
   {{- with .Values.service.annotations }}
   annotations:
-    {{- toYaml .Values.service.annotations | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
   externalTrafficPolicy: Local
