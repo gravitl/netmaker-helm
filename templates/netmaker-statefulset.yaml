@@ -87,6 +87,8 @@ spec:
           value: "{{ .Values.service.mqPort }}"
         - name: MQ_SERVER_PORT
           value: "1883"
+        - name: MQ_ADMIN_PASSWORD
+          value: {{ .Values.mq.password }}
         - name: VERBOSITY
           value: "3"
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
@@ -99,7 +101,7 @@ spec:
         {{ $count := (add .Values.wireguard.networkLimit 1 | int) }}
         {{- range untilStep 1 $count 1 }}
         - containerPort: {{ add 31820 . }}
-          protocol: UDP      
+          protocol: UDP
         {{- end }}
       {{- end }}
         securityContext:

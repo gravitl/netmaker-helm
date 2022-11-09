@@ -43,6 +43,7 @@ mq:
   replicas: 2
   singlenode: false
   storageSize: 128Mi
+  password: fake
 
 
 dns:
