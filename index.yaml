@@ -3,13 +3,29 @@ entries:
   netmaker:
   - apiVersion: v2
     appVersion: 0.14.5
-    created: "2022-11-07T11:49:40.427624-03:00"
+    created: "2023-01-02T16:04:41.733675-03:00"
+    dependencies:
+    - condition: postgresql-ha.enabled
+      name: postgresql-ha
+      repository: https://charts.bitnami.com/bitnami
+      version: 7.11.0
+    description: A Helm chart to run HA Netmaker on Kubernetes
+    digest: a88228db4eb82e88bfb08f4ec3e96e471cd78a954664678e49471ac1f1ac9f17
+    icon: https://raw.githubusercontent.com/gravitl/netmaker/master/netclient/windowsdata/resource/netclient.ico
+    name: netmaker
+    type: application
+    urls:
+    - netmaker-0.3.1.tgz
+    version: 0.3.1
+  - apiVersion: v2
+    appVersion: 0.14.5
+    created: "2023-01-02T16:04:41.725325-03:00"
     dependencies:
     - name: postgresql-ha
       repository: https://charts.bitnami.com/bitnami
       version: 7.11.0
     description: A Helm chart to run HA Netmaker on Kubernetes
-    digest: 8360841012648e656fbb22afeb31d1818604313fdd57201bd98155920a59dfe5
+    digest: a56143c1b6d497503d5de01b5604fb07598a3c1a86818ffca943d5fb4f47f57d
     icon: https://raw.githubusercontent.com/gravitl/netmaker/master/netclient/windowsdata/resource/netclient.ico
     name: netmaker
     type: application
@@ -18,7 +34,7 @@ entries:
     version: 0.3.0
   - apiVersion: v2
     appVersion: 0.14.5
-    created: "2022-11-07T11:49:40.416187-03:00"
+    created: "2023-01-02T16:04:41.714291-03:00"
     dependencies:
     - name: postgresql-ha
       repository: https://charts.bitnami.com/bitnami
@@ -36,7 +52,7 @@ entries:
       category: Database
     apiVersion: v2
     appVersion: 11.13.0
-    created: "2022-11-07T11:49:40.430667-03:00"
+    created: "2023-01-02T16:04:41.73618-03:00"
     dependencies:
     - name: common
       repository: https://charts.bitnami.com/bitnami
@@ -66,4 +82,4 @@ entries:
     urls:
     - charts/postgresql-ha-7.11.0.tgz
     version: 7.11.0
-generated: "2022-11-07T11:49:40.408229-03:00"
+generated: "2023-01-02T16:04:41.70919-03:00"
