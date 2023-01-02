@@ -70,7 +70,11 @@ spec:
               apiVersion: v1
               fieldPath: metadata.name
         - name: SQL_HOST
+          {{- if .Values.postgresql-ha.enabled }}
           value: '{{ .Release.Name }}-postgresql-ha-pgpool.{{ .Release.Namespace }}.svc.cluster.local'
+          {{- else }}
+          value: {{ .Values.wireguard.dbHost }}
+          {{- end }}
         - name: SQL_PORT
           value: "5432"
         - name: SQL_DB
