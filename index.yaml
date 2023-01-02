@@ -3,7 +3,23 @@ entries:
   netmaker:
   - apiVersion: v2
     appVersion: 0.14.5
-    created: "2023-01-02T16:30:22.510747-03:00"
+    created: "2023-01-02T16:51:45.284401-03:00"
+    dependencies:
+    - condition: postgresql-ha.enabled
+      name: postgresql-ha
+      repository: https://charts.bitnami.com/bitnami
+      version: 7.11.0
+    description: A Helm chart to run HA Netmaker on Kubernetes
+    digest: a2f868a25114afd29468e5b2c4b1084af354f7f066bc45003600d9097bc5aa74
+    icon: https://raw.githubusercontent.com/gravitl/netmaker/master/netclient/windowsdata/resource/netclient.ico
+    name: netmaker
+    type: application
+    urls:
+    - netmaker-0.3.3.tgz
+    version: 0.3.3
+  - apiVersion: v2
+    appVersion: 0.14.5
+    created: "2023-01-02T16:51:45.266299-03:00"
     dependencies:
     - condition: postgresql-ha.enabled
       name: postgresql-ha
@@ -19,7 +35,7 @@ entries:
     version: 0.3.2
   - apiVersion: v2
     appVersion: 0.14.5
-    created: "2023-01-02T16:30:22.498589-03:00"
+    created: "2023-01-02T16:51:45.255457-03:00"
     dependencies:
     - condition: postgresql-ha.enabled
       name: postgresql-ha
@@ -35,7 +51,7 @@ entries:
     version: 0.3.1
   - apiVersion: v2
     appVersion: 0.14.5
-    created: "2023-01-02T16:30:22.488157-03:00"
+    created: "2023-01-02T16:51:45.245184-03:00"
     dependencies:
     - name: postgresql-ha
       repository: https://charts.bitnami.com/bitnami
@@ -50,7 +66,7 @@ entries:
     version: 0.3.0
   - apiVersion: v2
     appVersion: 0.14.5
-    created: "2023-01-02T16:30:22.477009-03:00"
+    created: "2023-01-02T16:51:45.233764-03:00"
     dependencies:
     - name: postgresql-ha
       repository: https://charts.bitnami.com/bitnami
@@ -68,7 +84,7 @@ entries:
       category: Database
     apiVersion: v2
     appVersion: 11.13.0
-    created: "2023-01-02T16:30:22.513389-03:00"
+    created: "2023-01-02T16:51:45.286675-03:00"
     dependencies:
     - name: common
       repository: https://charts.bitnami.com/bitnami
@@ -98,4 +114,4 @@ entries:
     urls:
     - charts/postgresql-ha-7.11.0.tgz
     version: 7.11.0
-generated: "2023-01-02T16:30:22.471932-03:00"
+generated: "2023-01-02T16:51:45.224627-03:00"
