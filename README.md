@@ -23,7 +23,7 @@ Furthermore, the chart will by default install and use a postgresql cluster as i
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | postgresql-ha | 7.11.0 |
+| https://charts.bitnami.com/bitnami | postgresql-ha | 10.0.7 |
 
 ### Example Install
 
