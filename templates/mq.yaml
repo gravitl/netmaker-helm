@@ -16,19 +16,12 @@ spec:
       labels:
         app: {{ include "netmaker.fullname" . }}-mqtt
     spec:
-      {{- if .Values.mq.singlenode }}    
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: mqhost
-                operator: In
-                values:
-                - "true"
+      {{- if .Values.mq.singlenode }}
+      nodeSelector: 
+        mqhost: "true"
       {{- end }}
       containers:
-      - image: eclipse-mosquitto:2.0.11-openssl
+      - image: eclipse-mosquitto:2.0.15-openssl
         imagePullPolicy: Always
         name: mosquitto
         livenessProbe:
@@ -127,6 +120,7 @@ apiVersion: v1
 data:
   mosquitto.conf: |
     per_listener_settings true
+
     listener 8883
     allow_anonymous false
     require_certificate true
@@ -134,6 +128,7 @@ data:
     cafile /mosquitto/certs/root.pem
     certfile /mosquitto/certs/server.pem
     keyfile /mosquitto/certs/server.key
+
     listener 1883
     allow_anonymous true
 kind: ConfigMap

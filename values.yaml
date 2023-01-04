@@ -11,7 +11,7 @@ image:
   # -- Pull Policy for images
   pullPolicy: Always
   # -- Override the image tag to pull 
-  tag: "v0.14.5"
+  tag: "v0.15.2"
 
 # -- override the name for netmaker objects 
 nameOverride: ""  
