@@ -28,7 +28,11 @@ spec:
                 - "true"
       {{- end }}
       containers:
-      - image: eclipse-mosquitto:2.0.11-openssl
+      - env:
+        - name: NETMAKER_SERVER_HOST
+          value: https://api.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
+        image: eclipse-mosquitto:2.0.11-openssl
+        command: ["/mosquitto/config/wait.sh"]
         imagePullPolicy: Always
         name: mosquitto
         livenessProbe:
@@ -66,13 +70,20 @@ spec:
         - mountPath: /mosquitto/config/mosquitto.conf
           name: mosquitto-config
           subPath: mosquitto.conf
-        - mountPath: /mosquitto/certs
-          name: shared-certs
+        - mountPath: /mosquitto/config/wait.sh
+          name: wait-script
+          subPath: wait.sh
+        - mountPath: /mosquitto/data
+          name: shared-data
       volumes:
       - configMap:
           name: {{ include "netmaker.fullname" . }}-mqtt-config
         name: mosquitto-config
-      - name: shared-certs
+      - configMap:
+          name: {{ include "netmaker.fullname" . }}-mqtt-wait
+          defaultMode: 0744
+        name: wait-script
+      - name: shared-data
         persistentVolumeClaim:
           claimName: {{ include "netmaker.fullname" . }}-shared-certs-pvc
 ---
@@ -126,19 +137,51 @@ spec:
 apiVersion: v1
 data:
   mosquitto.conf: |
-    per_listener_settings true
+    per_listener_settings false
     listener 8883
+    protocol websockets
     allow_anonymous false
-    require_certificate true
-    use_identity_as_username true
-    cafile /mosquitto/certs/root.pem
-    certfile /mosquitto/certs/server.pem
-    keyfile /mosquitto/certs/server.key
     listener 1883
-    allow_anonymous true
+    protocol websockets
+    allow_anonymous false
+    plugin /usr/lib/mosquitto_dynamic_security.so
+    plugin_opt_config_file /mosquitto/data/dynamic-security.json
 kind: ConfigMap
 metadata:
   labels:
     app.kubernetes.io/instance: {{ include "netmaker.fullname" . }}-mqtt
     app.kubernetes.io/name: {{ include "netmaker.fullname" . }}-mqtt
   name: {{ include "netmaker.fullname" . }}-mqtt-config
+---
+apiVersion: v1
+data:
+  wait.sh: |
+    #!/bin/ash
+
+    wait_for_netmaker() {
+      echo "SERVER: ${NETMAKER_SERVER_HOST}"
+      until curl --output /dev/null --silent --fail --head \
+        --location "${NETMAKER_SERVER_HOST}/api/server/health"; do
+        echo "Waiting for netmaker server to startup"
+        sleep 1
+      done
+    }
+
+    main(){
+    # wait for netmaker to startup
+    apk add curl
+    wait_for_netmaker
+    echo "Starting MQ..."
+    # Run the main container command.
+    /docker-entrypoint.sh
+    /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf
+
+    }
+
+    main "${@}"
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: {{ include "netmaker.fullname" . }}-mqtt
+    app.kubernetes.io/name: {{ include "netmaker.fullname" . }}-mqtt
+  name: {{ include "netmaker.fullname" . }}-mqtt-wait

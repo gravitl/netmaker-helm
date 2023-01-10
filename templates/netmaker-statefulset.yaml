@@ -16,12 +16,13 @@ spec:
         app: {{ include "netmaker.fullname" . }}
     spec:
       initContainers:
-      - name: init-sysctl
-        image: busybox
-        imagePullPolicy: IfNotPresent
-        command: ["sysctl", "-w", "net.ipv4.ip_forward=1"]
-        securityContext:
-          privileged: true
+        - name: init-sysctl
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args: ["sysctl -w net.ipv4.ip_forward=1 && sysctl -w net.ipv4.conf.all.src_valid_mark=1 && sysctl -w net.ipv6.conf.all.disable_ipv6=0 && sysctl -w net.ipv6.conf.all.forwarding=1"]
+          securityContext:
+            privileged: true
       dnsPolicy: ClusterFirstWithHostNet
       affinity:
         podAntiAffinity:
@@ -85,6 +86,8 @@ spec:
           value: {{ index .Values "postgresql-ha" "postgresql" "password" }}
         - name: DATABASE
           value: postgres
+        - name: DISPLAY_KEYS
+          value: "on"
         - name: MQ_HOST
           value: {{ include "netmaker.fullname" . }}-mqtt
         - name: MQ_PORT
@@ -93,6 +96,8 @@ spec:
           value: "1883"
         - name: MQ_ADMIN_PASSWORD
           value: {{ .Values.mq.password }}
+        - name: PLATFORM
+          value: "Kubernetes"
         - name: VERBOSITY
           value: "3"
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
