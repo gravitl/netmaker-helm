@@ -3,7 +3,70 @@ entries:
   netmaker:
   - apiVersion: v2
     appVersion: 0.14.5
-    created: "2022-07-12T22:25:22.524580594-04:00"
+    created: "2023-01-02T16:51:45.284401-03:00"
+    dependencies:
+    - condition: postgresql-ha.enabled
+      name: postgresql-ha
+      repository: https://charts.bitnami.com/bitnami
+      version: 7.11.0
+    description: A Helm chart to run HA Netmaker on Kubernetes
+    digest: a2f868a25114afd29468e5b2c4b1084af354f7f066bc45003600d9097bc5aa74
+    icon: https://raw.githubusercontent.com/gravitl/netmaker/master/netclient/windowsdata/resource/netclient.ico
+    name: netmaker
+    type: application
+    urls:
+    - netmaker-0.3.3.tgz
+    version: 0.3.3
+  - apiVersion: v2
+    appVersion: 0.14.5
+    created: "2023-01-02T16:51:45.266299-03:00"
+    dependencies:
+    - condition: postgresql-ha.enabled
+      name: postgresql-ha
+      repository: https://charts.bitnami.com/bitnami
+      version: 7.11.0
+    description: A Helm chart to run HA Netmaker on Kubernetes
+    digest: 5a8e7af27b72bf14df443d784d878f8b1eaf8877ff5484ff6c20a473fba5ee70
+    icon: https://raw.githubusercontent.com/gravitl/netmaker/master/netclient/windowsdata/resource/netclient.ico
+    name: netmaker
+    type: application
+    urls:
+    - netmaker-0.3.2.tgz
+    version: 0.3.2
+  - apiVersion: v2
+    appVersion: 0.14.5
+    created: "2023-01-02T16:51:45.255457-03:00"
+    dependencies:
+    - condition: postgresql-ha.enabled
+      name: postgresql-ha
+      repository: https://charts.bitnami.com/bitnami
+      version: 7.11.0
+    description: A Helm chart to run HA Netmaker on Kubernetes
+    digest: a88228db4eb82e88bfb08f4ec3e96e471cd78a954664678e49471ac1f1ac9f17
+    icon: https://raw.githubusercontent.com/gravitl/netmaker/master/netclient/windowsdata/resource/netclient.ico
+    name: netmaker
+    type: application
+    urls:
+    - netmaker-0.3.1.tgz
+    version: 0.3.1
+  - apiVersion: v2
+    appVersion: 0.14.5
+    created: "2023-01-02T16:51:45.245184-03:00"
+    dependencies:
+    - name: postgresql-ha
+      repository: https://charts.bitnami.com/bitnami
+      version: 7.11.0
+    description: A Helm chart to run HA Netmaker on Kubernetes
+    digest: a56143c1b6d497503d5de01b5604fb07598a3c1a86818ffca943d5fb4f47f57d
+    icon: https://raw.githubusercontent.com/gravitl/netmaker/master/netclient/windowsdata/resource/netclient.ico
+    name: netmaker
+    type: application
+    urls:
+    - netmaker-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v2
+    appVersion: 0.14.5
+    created: "2023-01-02T16:51:45.233764-03:00"
     dependencies:
     - name: postgresql-ha
       repository: https://charts.bitnami.com/bitnami
@@ -14,14 +77,14 @@ entries:
     name: netmaker
     type: application
     urls:
-    - https://gravitl.github.io/netmaker-helm/netmaker-0.2.0.tgz
+    - netmaker-0.2.0.tgz
     version: 0.2.0
   postgresql-ha:
   - annotations:
       category: Database
     apiVersion: v2
     appVersion: 11.13.0
-    created: "2022-07-12T22:25:22.52787047-04:00"
+    created: "2023-01-02T16:51:45.286675-03:00"
     dependencies:
     - name: common
       repository: https://charts.bitnami.com/bitnami
@@ -49,6 +112,6 @@ entries:
     - https://github.com/bitnami/bitnami-docker-postgresql
     - https://www.postgresql.org/
     urls:
-    - https://gravitl.github.io/netmaker-helm/charts/postgresql-ha-7.11.0.tgz
+    - charts/postgresql-ha-7.11.0.tgz
     version: 7.11.0
-generated: "2022-07-12T22:25:22.517212276-04:00"
+generated: "2023-01-02T16:51:45.224627-03:00"
