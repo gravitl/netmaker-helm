@@ -16,12 +16,13 @@ spec:
         app: {{ include "netmaker.fullname" . }}
     spec:
       initContainers:
-      - name: init-sysctl
-        image: busybox
-        imagePullPolicy: IfNotPresent
-        command: ["sysctl", "-w", "net.ipv4.ip_forward=1"]
-        securityContext:
-          privileged: true
+        - name: init-sysctl
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args: ["sysctl -w net.ipv4.ip_forward=1 && sysctl -w net.ipv4.conf.all.src_valid_mark=1 && sysctl -w net.ipv6.conf.all.disable_ipv6=0 && sysctl -w net.ipv6.conf.all.forwarding=1"]
+          securityContext:
+            privileged: true
       dnsPolicy: ClusterFirstWithHostNet
       affinity:
         podAntiAffinity:
@@ -60,8 +61,6 @@ spec:
           value: "on"
         - name: MASTER_KEY
           value: {{ include "netmaker.masterKey" . }}
-        - name: PLATFORM
-          value: Kubernetes
         - name: CORS_ALLOWED_ORIGIN
           value: '*'
         - name: NODE_ID
@@ -85,6 +84,8 @@ spec:
           value: {{ index .Values "postgresql-ha" "postgresql" "password" }}
         - name: DATABASE
           value: postgres
+        - name: DISPLAY_KEYS
+          value: "on"
         - name: MQ_HOST
           value: {{ include "netmaker.fullname" . }}-mqtt
         - name: MQ_PORT
@@ -93,6 +94,8 @@ spec:
           value: "1883"
         - name: MQ_ADMIN_PASSWORD
           value: {{ .Values.mq.password }}
+        - name: PLATFORM
+          value: "Kubernetes"
         - name: VERBOSITY
           value: "3"
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
@@ -116,15 +119,15 @@ spec:
             - SYS_MODULE
         volumeMounts:
         - mountPath: /etc/netmaker/
-          name: shared-certs
+          name: shared-data
         {{- if .Values.dns.enabled }}
         - name: {{ include "netmaker.fullname" . }}-dns-pvc
           mountPath: /root/config/dnsconfig
         {{- end }}
       volumes:
-      - name: shared-certs
+      - name: shared-data
         persistentVolumeClaim:
-          claimName: {{ include "netmaker.fullname" . }}-shared-certs-pvc
+          claimName: {{ include "netmaker.fullname" . }}-shared-data-pvc
       {{- if .Values.dns.enabled }}
       - name: {{ include "netmaker.fullname" . }}-dns-pvc
         persistentVolumeClaim:
