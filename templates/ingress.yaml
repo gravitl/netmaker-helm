@@ -2,10 +2,10 @@
 {{- $fullName := include "netmaker.fullname" . -}}
 {{- $fullUIName := printf "%s-%s" $fullName "ui" -}}
 {{- $fullRESTName := printf "%s-%s" $fullName "rest" -}}
-{{- $fullMQName := printf "%s-%s" $fullName "mq" -}}
+{{- $fullMQName := printf "%s-%s" $fullName "mqtt" -}}
 {{- $uiSvcPort := .Values.service.uiPort -}}
 {{- $restSvcPort := .Values.service.restPort -}}
-{{- $mqSvcPort := .Values.service.mqPort -}}
+{{- $mqSvcPort := 8883 -}}
 {{- $classname := required "A valid .Values.ingress.className entry required! Please set this to your ingress class (nginx, traefik)" .Values.ingress.className}}
 {{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
   {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
@@ -133,6 +133,61 @@ spec:
               serviceName: {{ $fullRESTName }}
               servicePort: {{ $restSvcPort }}
               {{- end }}
+{{- if or (eq .Values.ingress.className "nginx") (eq .Values.ingress.className "public") }}
+---
+{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ $fullMQName }}
+  labels:
+    {{- include "netmaker.labels" . | nindent 4 }}
+  {{- with .Values.ingress }}
+  annotations:
+    {{- toYaml .annotations.nginx | nindent 4 }}
+    {{- if and .tls.enabled (eq .tls.issuerName "" )}}
+    {{- toYaml .annotations.tls | nindent 4 }}
+    {{- else if .tls.enabled}}
+    cert-manager.io/cluster-issuer: {{ .tls.issuerName }}
+    {{- end }}
+    {{- with .annotations.mq }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+spec:
+  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName:  {{ required "A valid .Values.ingress.className entry required!" .Values.ingress.className}}
+  {{- end }}
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.hostPrefix.broker }}{{ .Values.baseDomain }}
+      secretName: {{ $fullMQName }}-tls-secret
+  {{- end }}
+  rules:
+    - host: {{ .Values.ingress.hostPrefix.broker }}{{ .Values.baseDomain }}
+      http:
+        paths:
+          - path: /
+            {{- if (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
+            pathType: Prefix
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $fullMQName }}
+                port:
+                  number: {{ $mqSvcPort }}
+              {{- else }}
+              serviceName: {{ $fullMQName }}
+              servicePort: {{ $mqSvcPort }}
+              {{- end }}
+{{- end }}
 {{- if eq .Values.ingress.className "traefik" }}
 ---
 apiVersion: traefik.containo.us/v1alpha1

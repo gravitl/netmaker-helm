@@ -60,7 +60,7 @@ service:
   # -- port for API service
   restPort: 8081
   # -- port for MQTT service
-  mqPort: 31883
+  mqPort: 443
   # -- port for UI service
   uiPort: 80
 
@@ -73,6 +73,7 @@ ingress:
   annotations:
     ui: {}
     rest: {}
+    mq: {}
     base:
       # -- annotation to generate ACME certs if available
       kubernetes.io/ingress.allow-http: "false"

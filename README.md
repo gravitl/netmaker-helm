@@ -13,11 +13,10 @@ To run HA Netmaker on Kubernetes, your cluster must have the following:
 		- Nginx Ingress + LetsEncrypt/Cert-Manager
 		- Traefik Ingress + LetsEncrypt/Cert-Manager
 	- to generate automatically, make sure one of the two is configured for your cluster
-- Access to modify the Load Balancer for external traffic:
-	- By default, MQ is deployed with a NodePort, and DNS must point to this NodePort
-	- If deploying with default settings, you must modify the cluster load balancer so that it will load balancer 31883 --> 31883
-	- Alternatively, you can specify "singlenode=true" in your helm options. In this case, a node must be labelled with mqhost=true.
-		- If this option is selected, you do not have to modify your loadbalancer, but you MUST modify DNS settings to point broker.domain to the public IP of the node running MQ. Also note that this will not be an HA MQ deployment.
+- Ability to set up DNS for Secure Web Sockets
+	- Nginx Ingress supports Secure Web Sockets (WSS) by default. If you are not using Nginx Ingress, you must route external traffic from broker.domain to the MQTT service, and provide valid TLS certificates.
+	- One option is to set up a Load Balancer which routes broker.domain:443 to the MQTT service on port 8883.
+	- We do not provide guidance beyond this, and recommend using an Ingress Controller that supports websockets.
 
 Furthermore, the chart will by default install and use a postgresql cluster as its datastore: 
 
@@ -53,9 +52,7 @@ Below, we discuss the considerations for Ingress, Kernel WireGuard, and DNS.
 
 #### MQ
 
-The MQ Broker is deployed either without Ingress (Nginx) or with Ingress (Traefik). Without Ingress, Netmaker's MQTT sets up a NodePort on the cluster (31883 by default). The broker.domain address must reach the nodes at this port. Certificates are then handled by Netmaker, so Ingress+Certs are not required.
-
-If using Traefik, a TCPIngressRoute object is created, which works in place of the NodePort.
+The MQ Broker is deployed either with Ingress (Nginx or Traefik) preconfigured, or without. If you are using an ingress controller other than Nginx or Traefik, Netmaker's MQTT will not be complete. "broker.domain"  must reach the MQTT service at port 8883 over WSS (Secure Web Sockets).
 
 #### Ingress	
 To run HA Netmaker, you must have ingress installed and enabled on your cluster with valid TLS certificates (not self-signed). If you are running Nginx as your Ingress Controller and LetsEncrypt for TLS certificate management, you can run the helm install with the following settings:
@@ -116,7 +113,7 @@ This will also require specifying a service address for DNS. Choose a valid ipv4
 | postgresql-ha.postgresql.password | string | `"netmaker"` | postgres pass to generate |
 | postgresql-ha.postgresql.username | string | `"netmaker"` | postgres user to generate |
 | replicas | int | `3` | number of netmaker server replicas to create  |
-| service.mqPort | int | `31883` | port for MQ service |
+| service.mqPort | int | `443` | public port for MQ service |
 | service.restPort | int | `8081` | port for API service |
 | service.type | string | `"ClusterIP"` | type for netmaker server services |
 | service.uiPort | int | `80` | port for UI service |
@@ -126,4 +123,3 @@ This will also require specifying a service address for DNS. Choose a valid ipv4
 | ui.replicas | int | `2` | how many UI replicas to create |
 | wireguard.kernel | bool | `false` | whether or not to use Kernel WG (should be false unless WireGuard is installed on hosts). |
 | wireguard.networkLimit | int | `10` | max number of networks that Netmaker will support if running with WireGuard enabled |
-

@@ -85,7 +85,7 @@ spec:
         name: wait-script
       - name: shared-data
         persistentVolumeClaim:
-          claimName: {{ include "netmaker.fullname" . }}-shared-certs-pvc
+          claimName: {{ include "netmaker.fullname" . }}-shared-data-pvc
 ---
 apiVersion: v1
 kind: Service
@@ -108,7 +108,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ include "netmaker.fullname" . }}-shared-certs-pvc
+  name: {{ include "netmaker.fullname" . }}-shared-data-pvc
 spec:
   storageClassName: {{ required "A valid .Values.RWXStorageClassName entry required! Specify an available RWX storage class." .Values.RWXStorageClassName}}
   accessModes:
@@ -116,23 +116,6 @@ spec:
   resources:
     requests:
       storage: {{ .Values.mq.storageSize }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-  name: {{ include "netmaker.fullname" . }}-mqtt-nodeport
-spec:
-  externalTrafficPolicy: Cluster
-  type: NodePort
-  selector:
-    app: {{ include "netmaker.fullname" . }}-mqtt
-  ports:
-  - port: {{ .Values.service.mqPort }}
-    nodePort: {{ .Values.service.mqPort }}
-    protocol: TCP
-    targetPort: 8883
-    name: nm-mqtt
 ---
 apiVersion: v1
 data:

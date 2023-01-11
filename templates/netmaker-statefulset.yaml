@@ -61,8 +61,6 @@ spec:
           value: "on"
         - name: MASTER_KEY
           value: {{ include "netmaker.masterKey" . }}
-        - name: PLATFORM
-          value: Kubernetes
         - name: CORS_ALLOWED_ORIGIN
           value: '*'
         - name: NODE_ID
@@ -121,15 +119,15 @@ spec:
             - SYS_MODULE
         volumeMounts:
         - mountPath: /etc/netmaker/
-          name: shared-certs
+          name: shared-data
         {{- if .Values.dns.enabled }}
         - name: {{ include "netmaker.fullname" . }}-dns-pvc
           mountPath: /root/config/dnsconfig
         {{- end }}
       volumes:
-      - name: shared-certs
+      - name: shared-data
         persistentVolumeClaim:
-          claimName: {{ include "netmaker.fullname" . }}-shared-certs-pvc
+          claimName: {{ include "netmaker.fullname" . }}-shared-data-pvc
       {{- if .Values.dns.enabled }}
       - name: {{ include "netmaker.fullname" . }}-dns-pvc
         persistentVolumeClaim:
