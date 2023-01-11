@@ -11,7 +11,7 @@ image:
   # -- Pull Policy for images
   pullPolicy: Always
   # -- Override the image tag to pull
-  tag: "v0.14.5"
+  tag: "v0.17.1"
 
 # -- override the name for netmaker objects
 nameOverride: ""
@@ -43,7 +43,7 @@ mq:
   replicas: 2
   singlenode: false
   storageSize: 128Mi
-  password: fake
+  password: 3yyerWGdds43yegGR
 
 
 dns:
@@ -60,19 +60,20 @@ service:
   # -- port for API service
   restPort: 8081
   # -- port for MQTT service
-  mqPort: 31883
+  mqPort: 443
   # -- port for UI service
   uiPort: 80
 
 ingress:
   # -- attempts to configure ingress if true
-  enabled: false
+  enabled: true
   tls:
-    enabled: true
+    enabled: false
     issuerName: "letsencrypt-prod"
   annotations:
     ui: {}
     rest: {}
+    mq: {}
     base:
       # -- annotation to generate ACME certs if available
       kubernetes.io/ingress.allow-http: "false"
@@ -120,6 +121,7 @@ postgresql-ha:
     database: netmaker
     # -- postgress number of replicas to deploy
     replicaCount: 2
+    enabled: true
   persistence:
     # -- size of postgres DB
     size: 1Gi
