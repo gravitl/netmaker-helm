@@ -1,6 +1,6 @@
 # Netmaker Helm
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.14.5](https://img.shields.io/badge/AppVersion-0.14.5-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.17.1](https://img.shields.io/badge/AppVersion-0.17.1-informational?style=flat-square)
 
 A Helm chart to run Netmaker with High Availability on Kubernetes
 
@@ -91,7 +91,7 @@ This will also require specifying a service address for DNS. Choose a valid ipv4
 | fullnameOverride | string | `""` | override the full name for netmaker objects  |
 | image.pullPolicy | string | `"Always"` | Pull Policy for images |
 | image.repository | string | `"gravitl/netmaker"` | The image repo to pull Netmaker image from  |
-| image.tag | string | `"v0.14.5"` | Override the image tag to pull  |
+| image.tag | string | `"v0.17.1"` | Override the image tag to pull  |
 | ingress.annotations.base."kubernetes.io/ingress.allow-http" | string | `"false"` | annotation to generate ACME certs if available |
 | ingress.annotations.nginx."nginx.ingress.kubernetes.io/rewrite-target" | string | `"/"` | destination addr for route |
 | ingress.annotations.nginx."nginx.ingress.kubernetes.io/ssl-redirect" | string | `"true"` | Redirect http to https  |
