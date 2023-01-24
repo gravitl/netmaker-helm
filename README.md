@@ -42,7 +42,7 @@ helm install netmaker/netmaker --generate-name \ # generate a random id for the 
 
 ### Recommended Settings:
 A minimal HA install of Netmaker can be run with the following command:
-`helm install netmaker/netmaker --generate-name --set baseDomain=nm.example.com --set RWXStorageClassName=nfs`
+`helm install netmaker/netmaker --generate-name --set baseDomain=nm.example.com --set mq.RWX.storageClassName=nfs`
 `
 This install has some notable exceptions:
 - Ingress **must** be manually configured post-install (need to create valid Ingress with TLS)

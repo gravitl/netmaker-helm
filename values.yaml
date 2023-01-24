@@ -44,12 +44,15 @@ mq:
   singlenode: false
   storageSize: 128Mi
   password: 3yyerWGdds43yegGR
-
+  RWX:
+    storageClassName: ""
 
 dns:
   # -- whether or not to deploy coredns
   enabled: false
   storageSize: 128Mi
+  RWX:
+    storageClassName: ""
 
 setIpForwarding:
   enabled: true
@@ -112,6 +115,7 @@ wireguard:
   networkLimit: 10
 
 postgresql-ha:
+  enabled: true
   postgresql:
     # -- postgres user to generate
     username: netmaker
@@ -121,7 +125,6 @@ postgresql-ha:
     database: netmaker
     # -- postgress number of replicas to deploy
     replicaCount: 2
-    enabled: true
   persistence:
     # -- size of postgres DB
     size: 1Gi

@@ -110,7 +110,7 @@ apiVersion: v1
 metadata:
   name: {{ include "netmaker.fullname" . }}-shared-data-pvc
 spec:
-  storageClassName: {{ required "A valid .Values.RWXStorageClassName entry required! Specify an available RWX storage class." .Values.RWXStorageClassName}}
+  storageClassName: {{ required "A valid .Values.mq.RWX.storageClassName entry required! Specify an available RWX storage class." .Values.mq.RWX.storageClassName}}
   accessModes:
     - ReadWriteMany
   resources:
