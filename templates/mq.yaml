@@ -85,7 +85,11 @@ spec:
         name: wait-script
       - name: shared-data
         persistentVolumeClaim:
+        {{- if not .Values.mq.existingClaim }}
+          claimName: {{ .Values.mq.existingClaim }}
+        {{- else }} 
           claimName: {{ include "netmaker.fullname" . }}-shared-data-pvc
+        {{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -105,6 +109,7 @@ spec:
     app: {{ include "netmaker.fullname" . }}-mqtt
   sessionAffinity: None
 ---
+{{- if not .Values.mq.existingClaim }}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -117,6 +122,7 @@ spec:
     requests:
       storage: {{ .Values.mq.storageSize }}
 ---
+{{- end }}
 apiVersion: v1
 data:
   mosquitto.conf: |
