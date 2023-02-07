@@ -34,6 +34,15 @@ podAnnotations: {}
 podSecurityContext: {}
 # fsGroup: 2000
 
+# -- extra environment variables from a config map
+# extraEnvCM: "configmap-name"
+# -- extra environment variables from a secret
+# extraEnvSecret: "secret-name"
+## -- extra environment variables, passed through helm tpl
+# extraEnv:
+#   - name: TEST_VARIABLE
+#     value: "TEST_VALUE"
+
 ui:
   # -- how many UI replicas to create
   replicas: 2
@@ -44,6 +53,10 @@ mq:
   singlenode: false
   storageSize: 128Mi
   password: 3yyerWGdds43yegGR
+  # -- specify a secret containing the mq password
+  # existingSecretName: ""
+  # -- key in the existing secret that contains the password for mq
+  # existingSecretKey: ""
   RWX:
     storageClassName: ""
 
@@ -121,10 +134,13 @@ postgresql-ha:
     username: netmaker
     # -- postgres pass to generate
     password: netmaker
-    # -- postgress db to generate
+    # -- postgres db to generate
     database: netmaker
-    # -- postgress number of replicas to deploy
+    # -- postgres number of replicas to deploy
     replicaCount: 2
+    # -- postgres use existing secret for passwords
+    # -- secret must contain values for keys postgres-password, password and repmgr-password
+    # existingSecret: ""
   persistence:
     # -- size of postgres DB
     size: 1Gi
