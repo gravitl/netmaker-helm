@@ -81,7 +81,14 @@ spec:
         - name: SQL_USER
           value: {{ index .Values "postgresql-ha" "postgresql" "username" }}
         - name: SQL_PASS
+        {{- if index .Values "postgresql-ha" "postgresql" "existingSecret" }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ index .Values "postgresql-ha" "postgresql" "existingSecret" }}
+              key: password
+        {{- else }}
           value: {{ index .Values "postgresql-ha" "postgresql" "password" }}
+        {{- end }}
         - name: DATABASE
           value: postgres
         - name: DISPLAY_KEYS
@@ -93,11 +100,32 @@ spec:
         - name: MQ_SERVER_PORT
           value: "1883"
         - name: MQ_ADMIN_PASSWORD
+        {{- if or (index .Values "mq" "existingSecretName") (index .Values "mq" "existingSecretKey") }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ index .Values "mq" "existingSecretName" }}
+              key: {{ index .Values "mq" "existingSecretKey" }}
+        {{- else }}
           value: {{ .Values.mq.password }}
+        {{- end }}
         - name: PLATFORM
           value: "Kubernetes"
         - name: VERBOSITY
           value: "3"
+        {{- if .Values.extraEnv }}
+          {{- tpl (.Values.extraEnv | toYaml) . | nindent 8 }}
+        {{- end }}
+        {{- if or .Values.extraEnvCM .Values.extraEnvSecret }}
+        envFrom:
+          {{- if .Values.extraEnvCM }}
+          - configMapRef:
+              name: {{ .Values.extraEnvCM }}
+          {{- end }}
+          {{- if .Values.extraEnvSecret }}
+          - secretRef:
+              name: {{ .Values.extraEnvSecret }}
+          {{- end }}
+        {{- end }}
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         name: {{ include "netmaker.fullname" . }}
