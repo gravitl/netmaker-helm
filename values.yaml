@@ -44,6 +44,8 @@ mq:
   singlenode: false
   storageSize: 128Mi
   password: 3yyerWGdds43yegGR
+  # -- existing claim for shared-data PVC
+  # existingClaim: ""
   RWX:
     storageClassName: ""
 
