@@ -39,9 +39,9 @@ spec:
         - name: SERVER_NAME
           value: broker.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
         - name: SERVER_API_CONN_STRING
-          value: api.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}:443
+          value: {{ .Values.ingress.hostPrefix.rest }}{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}:443
         - name: SERVER_HTTP_HOST
-          value: api.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
+          value: {{ .Values.ingress.hostPrefix.rest }}{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
         - name: API_PORT
           value: "8081"
         {{- if not .Values.wireguard.kernel }}
@@ -127,7 +127,11 @@ spec:
       volumes:
       - name: shared-data
         persistentVolumeClaim:
+          {{- if .Values.persistence.existingClaim }}
+          claimName: {{ .Values.persistence.existingClaim }}
+          {{- else }}
           claimName: {{ include "netmaker.fullname" . }}-shared-data-pvc
+          {{- end }}
       {{- if .Values.dns.enabled }}
       - name: {{ include "netmaker.fullname" . }}-dns-pvc
         persistentVolumeClaim:

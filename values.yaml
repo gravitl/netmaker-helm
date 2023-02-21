@@ -34,6 +34,9 @@ podAnnotations: {}
 podSecurityContext: {}
 # fsGroup: 2000
 
+persistence:
+  existingClaim: ""
+
 ui:
   # -- how many UI replicas to create
   replicas: 2
@@ -46,6 +49,7 @@ mq:
   password: 3yyerWGdds43yegGR
   RWX:
     storageClassName: ""
+  existingClaim: ""
 
 dns:
   # -- whether or not to deploy coredns

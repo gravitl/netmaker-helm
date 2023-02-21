@@ -27,12 +27,8 @@ metadata:
   {{- with .Values.ingress }}
   annotations:
     {{- toYaml .annotations.base | nindent 4 }}
-    {{- if or (eq .className "nginx") (eq .className "public") }}
-    {{- toYaml .annotations.nginx | nindent 4 }}
-    {{- end }}
-    {{- if eq .className "traefik" }}
-    {{- toYaml .annotations.traefik | nindent 4 }}
-    {{- end }}
+    {{- /* load class-specific annotations using className subkey */}}
+    {{- index .annotations .className | toYaml | nindent 4 }}
     {{- if and .tls.enabled (eq .tls.issuerName "" )}}
     {{- toYaml .annotations.tls | nindent 4 }}
     {{- else if .tls.enabled}}
@@ -88,12 +84,8 @@ metadata:
   {{- with .Values.ingress }}
   annotations:
     {{- toYaml .annotations.base | nindent 4 }}
-    {{- if or (eq .className "nginx") (eq .className "public") }}
-    {{- toYaml .annotations.nginx | nindent 4 }}
-    {{- end }}
-    {{- if eq .className "traefik" }}
-    {{- toYaml .annotations.traefik | nindent 4 }}
-    {{- end }}
+    {{- /* load class-specific annotations using className subkey */}}
+    {{- index .annotations .className | toYaml | nindent 4 }}
     {{- if and .tls.enabled (eq .tls.issuerName "" )}}
     {{- toYaml .annotations.tls | nindent 4 }}
     {{- else if .tls.enabled}}
@@ -133,7 +125,7 @@ spec:
               serviceName: {{ $fullRESTName }}
               servicePort: {{ $restSvcPort }}
               {{- end }}
-{{- if or (eq .Values.ingress.className "nginx") (eq .Values.ingress.className "public") }}
+{{- if or (eq .Values.ingress.className "nginx") (eq .Values.ingress.className "public") (contains "nginx" .Values.ingress.className) }}
 ---
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
@@ -188,7 +180,7 @@ spec:
               servicePort: {{ $mqSvcPort }}
               {{- end }}
 {{- end }}
-{{- if eq .Values.ingress.className "traefik" }}
+{{- if or (eq .Values.ingress.className "traefik") (contains "traefik" .Values.ingress.className) }}
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRouteTCP
