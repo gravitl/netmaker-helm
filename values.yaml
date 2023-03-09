@@ -141,7 +141,7 @@ postgresql-ha:
 
 external-postgresql:
   # -- postgres host
-  host: netmaker
+  host: external.postgres.url
   # -- postgres hosts port
   port: 5432
   # -- postgres username
