@@ -5,6 +5,8 @@
 # -- number of netmaker server replicas to create
 replicas: 3
 
+baseDomain: netmaker.org
+
 image:
   # -- The image repo to pull Netmaker image from
   repository: gravitl/netmaker
@@ -44,6 +46,7 @@ mq:
   singlenode: false
   storageSize: 128Mi
   password: 3yyerWGdds43yegGR
+  # existingClaim: 
   RWX:
     storageClassName: ""
 
@@ -70,6 +73,7 @@ service:
 ingress:
   # -- attempts to configure ingress if true
   enabled: true
+  className: "nginx"
   tls:
     enabled: false
     issuerName: "letsencrypt-prod"
@@ -114,8 +118,12 @@ wireguard:
   # -- max number of networks that Netmaker will support if running with WireGuard enabled
   networkLimit: 10
 
+# -- which database will be use
+database:
+  internal: true
+
+# -- internal database
 postgresql-ha:
-  enabled: true
   postgresql:
     # -- postgres user to generate
     username: netmaker
@@ -123,8 +131,22 @@ postgresql-ha:
     password: netmaker
     # -- postgress db to generate
     database: netmaker
+    containerPorts:
+      postgresql: 5432
     # -- postgress number of replicas to deploy
     replicaCount: 2
   persistence:
     # -- size of postgres DB
     size: 1Gi
+
+external-postgresql:
+  # -- postgres host
+  host: netmaker
+  # -- postgres hosts port
+  port: 5432
+  # -- postgres username
+  username: netmaker
+  # -- postgres pass
+  password: netmaker
+  # -- postgress db
+  database: netmaker

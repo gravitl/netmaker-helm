@@ -68,3 +68,58 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Username for postgresql
+*/}}
+{{- define "netmaker.database.username" -}}
+{{- if .Values.database.internal }}
+{{- index .Values "postgresql-ha" "postgresql" "username" }}
+{{- else }}
+{{- index .Values "external-postgresql" "username" }}
+{{- end }}
+{{- end }}
+
+{{/*
+Password for postgresql
+*/}}
+{{- define "netmaker.database.password" -}}
+{{- if .Values.database.internal }}
+{{- index .Values "postgresql-ha" "postgresql" "password" }}
+{{- else }}
+{{- index .Values "external-postgresql" "password" }}
+{{- end }}
+{{- end }}
+
+{{/*
+Host for postgresql
+*/}}
+{{- define "netmaker.database.host" -}}
+{{- if .Values.database.internal }}
+{{- .Release.Name }}-postgresql-ha-pgpool.{{ .Release.Namespace }}
+{{- else }}
+{{- index .Values "external-postgresql" "host" }}
+{{- end }}
+{{- end }}
+
+{{/*
+Port for postgresql
+*/}}
+{{- define "netmaker.database.port" -}}
+{{- if .Values.database.internal }}
+{{- index .Values "postgresql-ha" "postgresql" "containerPorts" "postgresql" }}
+{{- else }}
+{{- index .Values "external-postgresql" "port" }}
+{{- end }}
+{{- end }}
+
+{{/*
+Database for postgresql
+*/}}
+{{- define "netmaker.database.database" -}}
+{{- if .Values.database.internal }}
+{{- index .Values "postgresql-ha" "postgresql" "database" }}
+{{- else }}
+{{- index .Values "external-postgresql" "database" }}
+{{- end }}
+{{- end }}
