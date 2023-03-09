@@ -108,10 +108,17 @@ This will also require specifying a service address for DNS. Choose a valid ipv4
 | nameOverride | string | `""` | override the name for netmaker objects  |
 | podAnnotations | object | `{}` | pod annotations to add |
 | podSecurityContext | object | `{}` | pod security contect to add |
+| database.internal | bool | `true` | internal or external postgresql |
 | postgresql-ha.persistence.size | string | `"3Gi"` | size of postgres DB |
 | postgresql-ha.postgresql.database | string | `"netmaker"` | postgress db to generate |
 | postgresql-ha.postgresql.password | string | `"netmaker"` | postgres pass to generate |
 | postgresql-ha.postgresql.username | string | `"netmaker"` | postgres user to generate |
+| postgresql-ha.postgresql.containerPorts.postgresql | int | `5432` | postgres port |
+| external-postgresql.host | string | `"external.postgres.url"` | external postgres host |
+| external-postgresql.port | int | `5432` | external postgres port |
+| external-postgresql.database | string | `"netmaker"` | external postgress db |
+| external-postgresql.password | string | `"netmaker"` | external postgres pass |
+| external-postgresql.username | string | `"netmaker"` | external postgres user |
 | replicas | int | `3` | number of netmaker server replicas to create  |
 | service.mqPort | int | `443` | public port for MQ service |
 | service.restPort | int | `8081` | port for API service |
