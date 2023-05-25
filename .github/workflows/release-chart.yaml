@@ -1,0 +1,45 @@
+name: Release Helm Chart
+
+on:
+  push:
+    branches:    
+      - master
+
+jobs:
+  release_chart:
+    name: Release chart
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: ghcr.io
+      REPOSITORY: visioncraft-ai
+    permissions:
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Get Chart version
+        id: chart-version
+        shell: bash
+        run: echo "CHART_VERSION=$(helm show chart . | grep -E '^version:.*' | cut -d ':' -f 2 | sed -e 's/^[[:space:]]*//')" >> $GITHUB_OUTPUT
+      - name: Helm | Login
+        shell: bash
+        run: echo ${{ secrets.GITHUB_TOKEN }} | helm registry login -u USERNAME --password-stdin $REGISTRY/$REPOSITORY
+        env:
+          HELM_EXPERIMENTAL_OCI: '1'
+      - name: Helm | Package
+        shell: bash
+        run: helm package .
+        env:
+          HELM_EXPERIMENTAL_OCI: '1'
+      - name: Helm | Push
+        shell: bash
+        run: helm push netmaker-${{ steps.chart-version.outputs.CHART_VERSION }}.tgz oci://$REGISTRY/$REPOSITORY
+        env:
+          HELM_EXPERIMENTAL_OCI: '1'
+      - name: Helm | Logout
+        shell: bash
+        run: helm registry logout $REGISTRY/$REPOSITORY
+        env:
+          HELM_EXPERIMENTAL_OCI: '1'
