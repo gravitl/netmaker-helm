@@ -98,6 +98,9 @@ spec:
           value: "Kubernetes"
         - name: VERBOSITY
           value: "3"
+        {{- with .Values.wireguard.extraEnv }}
+        {{ toYaml . | nindent 8 }}
+        {{- end }}
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         name: {{ include "netmaker.fullname" . }}
