@@ -119,6 +119,10 @@ wireguard:
   extraContainers: {}
   # -- the extra pod anti affinity rules
   extraPodAntiAffinity: {}
+  # -- the node selector for server pod
+  nodeSelector: {}
+  # -- the tolerations for server pod
+  tolerations: {}
 
 postgresql-ha:
   enabled: true
