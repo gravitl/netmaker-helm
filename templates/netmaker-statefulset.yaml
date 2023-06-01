@@ -35,6 +35,9 @@ spec:
                 - {{ include "netmaker.fullname" . }}
             topologyKey: "kubernetes.io/hostname"
       containers:
+      {{- with .Values.wireguard.extraContainers }}
+      {{ toYaml . | nindent 6 }}
+      {{- end }}
       - env:
         - name: SERVER_NAME
           value: broker.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
