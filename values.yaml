@@ -113,6 +113,8 @@ wireguard:
   kernel: false
   # -- max number of networks that Netmaker will support if running with WireGuard enabled
   networkLimit: 10
+  # -- the extra environment variables for server
+  extraEnv: {}
 
 postgresql-ha:
   enabled: true
