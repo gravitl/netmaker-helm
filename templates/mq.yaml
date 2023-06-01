@@ -30,7 +30,11 @@ spec:
       containers:
       - env:
         - name: NETMAKER_SERVER_HOST
+          {{- if .Values.ingress.enabled }}
           value: https://api.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
+          {{- else }}
+          value: 'http://{{ include "netmaker.fullname" . }}-rest.{{ .Release.Namespace }}.{{ .Values.service.kubernetesServiceDomain }}:{{ .Values.service.restPort }}'
+          {{- end }}
         image: eclipse-mosquitto:2.0.11-openssl
         command: ["/mosquitto/config/wait.sh"]
         imagePullPolicy: Always
