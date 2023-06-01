@@ -117,6 +117,8 @@ wireguard:
   extraEnv: {}
   # -- the extra containers for server pod
   extraContainers: {}
+  # -- the extra pod anti affinity rules
+  extraPodAntiAffinity: {}
 
 postgresql-ha:
   enabled: true

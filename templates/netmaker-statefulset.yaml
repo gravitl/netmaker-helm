@@ -34,6 +34,9 @@ spec:
                 values:
                 - {{ include "netmaker.fullname" . }}
             topologyKey: "kubernetes.io/hostname"
+          {{- with .Values.wireguard.extraPodAntiAffinity }}
+          {{ toYaml . | nindent 10 }}
+          {{- end }}
       containers:
       {{- with .Values.wireguard.extraContainers }}
       {{ toYaml . | nindent 6 }}
