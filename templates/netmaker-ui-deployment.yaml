@@ -21,5 +21,9 @@ spec:
         - containerPort: {{ .Values.service.uiPort }}
         env:
         - name: BACKEND_URL
+          {{- if .Values.ingress.enabled }}
           value: 'https://{{ .Values.ingress.hostPrefix.rest }}{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}'
+          {{- else }
+          value: 'http://{{ include "netmaker.fullname" . }}-rest.{{ .Release.Namespace }}.{{ .Values.service.kubernetesServiceDomain }}:{{ .Values.service.restPort }}'
+          {{- end }}}
       terminationGracePeriodSeconds: 15

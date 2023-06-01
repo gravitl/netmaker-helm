@@ -59,11 +59,23 @@ spec:
       {{- end }}
       - env:
         - name: SERVER_NAME
+          {{- if .Values.ingress.enabled }}
           value: broker.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
+          {{- else }}
+          value: {{ include "netmaker.fullname" . }}-mqtt.{{ .Release.Namespace }}.{{ .Values.service.kubernetesServiceDomain }}:8883
+          {{- end }}
         - name: SERVER_API_CONN_STRING
+          {{- if .Values.ingress.enabled }}
           value: api.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}:443
+          {{- else }}
+          value: {{ include "netmaker.fullname" . }}-rest.{{ .Release.Namespace }}.{{ .Values.service.kubernetesServiceDomain }}:{{ .Values.service.restPort }}
+          {{- end }}
         - name: SERVER_HTTP_HOST
+          {{- if .Values.ingress.enabled }}
           value: api.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
+          {{- else }}
+          value: {{ include "netmaker.fullname" . }}-rest.{{ .Release.Namespace }}.{{ .Values.service.kubernetesServiceDomain }}:{{ .Values.service.restPort }}
+          {{- end }}
         - name: API_PORT
           value: "8081"
         {{- if not .Values.wireguard.kernel }}
