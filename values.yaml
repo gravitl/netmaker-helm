@@ -66,6 +66,16 @@ service:
   mqPort: 443
   # -- port for UI service
   uiPort: 80
+  wireguard:
+    healthcheck:
+      # -- whether to enable healtchcheck for Wireguard
+      enabled: false
+      # -- the service type
+      serviceType: ClusterIP
+      # -- port for Wireguard healthcheck
+      port: 80
+      # -- the nodeport
+      nodePort:
 
 ingress:
   # -- attempts to configure ingress if true
