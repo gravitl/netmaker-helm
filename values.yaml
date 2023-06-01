@@ -115,6 +115,8 @@ wireguard:
   networkLimit: 10
   # -- the extra environment variables for server
   extraEnv: {}
+  # -- the extra containers for server pod
+  extraContainers: {}
 
 postgresql-ha:
   enabled: true
