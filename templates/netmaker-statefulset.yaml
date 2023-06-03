@@ -45,6 +45,7 @@ spec:
           {{- with .Values.wireguard.extraPodAntiAffinity }}
           {{ toYaml . | nindent 10 }}
           {{- end }}
+      containers:
       {{- if .Values.service.wireguard.healthcheck.enabled }}
       - name: sidecar-healthcheck
         image: nginx:alpine
@@ -53,7 +54,6 @@ spec:
             containerPort: 80
             protocol: TCP
       {{- end }}
-      containers:
       {{- with .Values.wireguard.extraContainers }}
       {{ toYaml . | nindent 6 }}
       {{- end }}
