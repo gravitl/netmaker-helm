@@ -76,6 +76,9 @@ service:
       port: 80
       # -- the nodeport
       nodePort:
+    metrics:
+      # --whether to enable metrics for Wireguard
+      enabled: false
   kubernetesServiceDomain: 'svc.cluster.local'
 
 ingress:
