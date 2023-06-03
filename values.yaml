@@ -124,6 +124,8 @@ wireguard:
   kernel: false
   # -- max number of networks that Netmaker will support if running with WireGuard enabled
   networkLimit: 10
+  # -- the extra annotations for server pod
+  extraAnnotations: {}
   # -- the extra environment variables for server
   extraEnv: {}
   # -- the extra containers for server pod

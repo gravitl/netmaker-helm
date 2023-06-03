@@ -4,6 +4,10 @@ metadata:
   labels:
     app: {{ include "netmaker.fullname" . }}
   name: {{ include "netmaker.fullname" . }}
+  annotations:
+  {{- with .Values.wireguard.extraAnnotations }}
+    {{ toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   replicas: {{ .Values.replicas }}
   serviceName: {{ include "netmaker.fullname" . }}-headless
