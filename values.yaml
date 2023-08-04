@@ -4,14 +4,14 @@
 
 # -- number of netmaker server replicas to create
 replicas: 3
-
+baseDomain: "mynmabcd.nip.io"
 image:
   # -- The image repo to pull Netmaker image from
   repository: gravitl/netmaker
   # -- Pull Policy for images
   pullPolicy: Always
   # -- Override the image tag to pull
-  tag: "v0.17.1"
+  tag: "v0.20.5"
 
 # -- override the name for netmaker objects
 nameOverride: ""
@@ -43,9 +43,20 @@ mq:
   replicas: 2
   singlenode: false
   storageSize: 128Mi
+  username: netmaker
   password: 3yyerWGdds43yegGR
   RWX:
     storageClassName: ""
+ee:
+  licensekey: ""
+  tenantId: ""
+
+turn:
+  enabled: false
+  turnHost: ""
+  turnApiHost: ""
+  turnUsername: ""
+  turnPassword: ""
 
 dns:
   # -- whether or not to deploy coredns
@@ -70,49 +81,15 @@ service:
 ingress:
   # -- attempts to configure ingress if true
   enabled: true
-  tls:
-    enabled: false
-    issuerName: "letsencrypt-prod"
+  tls: true
+  className: ""
   annotations:
-    ui: {}
-    rest: {}
-    mq: {}
-    base:
-      # -- annotation to generate ACME certs if available
-      kubernetes.io/ingress.allow-http: "false"
-    tls:
-      # -- use acme cert if available
-      kubernetes.io/tls-acme: "true"
-    nginx:
-      # -- Redirect http to https
-      nginx.ingress.kubernetes.io/ssl-redirect: 'true'
-      # -- destination addr for route
-      nginx.ingress.kubernetes.io/rewrite-target: /
-    traefik:
-      # -- Redirect to https
-      traefik.ingress.kubernetes.io/redirect-entry-point: https
-      # -- Redirect to https permanently
-      traefik.ingress.kubernetes.io/redirect-permanent: "true"
-      # -- rule type
-      traefik.ingress.kubernetes.io/rule-type: "PathPrefixStrip"
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
   hostPrefix:
-    # -- ui route subdomain
-    ui: 'dashboard.'
-    # -- api (REST) route subdomain
-    rest: 'api.'
-    # -- mqtt route subdomain
-    broker: 'broker.'
-
-wireguard:
-  # -- whether or not to use WireGuard on server
-  enabled: true
-  service:
-    annotations: {}
-    serviceType: NodePort
-  # -- whether or not to use Kernel WG (should be false unless WireGuard is installed on hosts).
-  kernel: false
-  # -- max number of networks that Netmaker will support if running with WireGuard enabled
-  networkLimit: 10
+    ui: "dashboard."
+    broker: "broker."
+    rest: "api."
 
 postgresql-ha:
   enabled: true
@@ -128,3 +105,4 @@ postgresql-ha:
   persistence:
     # -- size of postgres DB
     size: 1Gi
+

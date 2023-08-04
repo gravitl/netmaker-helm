@@ -1,0 +1,33 @@
+apiVersion: v1
+data:
+  BROKER_ENDPOINT: "wss://{{ .Values.ingress.hostPrefix.broker }}.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}"
+  SERVER_NAME: "{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}"
+  STUN_LIST: "stun1.netmaker.io:3478,stun2.netmaker.io:3478,stun1.l.google.com:19302,stun2.l.google.com:19302"
+  SERVER_HOST: "SERVER_PUBLIC_IP"
+  SERVER_API_CONN_STRING: "{{ .Values.ingress.hostPrefix.rest }}.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}:443"
+  COREDNS_ADDR: "SERVER_PUBLIC_IP"
+  DNS_MODE: "on"
+  SERVER_HTTP_HOST: "{{ .Values.ingress.hostPrefix.rest }}.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}"
+  API_PORT: "8081"
+  MESSAGEQUEUE_BACKEND: "on"
+  MASTER_KEY: "REPLACE_MASTER_KEY"
+  CORS_ALLOWED_ORIGIN: "*"
+  DISPLAY_KEYS: "on"
+  DATABASE: "postgres"
+  SERVER_BROKER_ENDPOINT: "ws://mq:1883"
+  VERBOSITY: "1"
+  MQ_PASSWORD: "{{ .Values.mq.password }}"
+  MQ_USERNAME: "{{ .Values.mq.username }}"
+  LICENSE_KEY: "{{ .Values.ee.licensekey }}" # needed if EE 
+  NETMAKER_TENANT_ID: "{{ .Values.ee.tenantId }}" # needed if EE
+{{- if .Values.turn.enabled -}}
+  TURN_SERVER_HOST: "REPLACE_TURN_HOST"
+  TURN_SERVER_API_HOST: "REPLACE_TURN_API_HOST"
+  TURN_PORT: "REPLACE_TURN_PORT"
+  TURN_USERNAME: "REPLACE_TURN_USER"
+  TURN_PASSWORD: "REPLACE_TURN_PASS"
+  USE_TURN: "false"
+{{- end -}}
+kind: ConfigMap
+metadata:
+  name: netmaker-env

@@ -15,108 +15,16 @@ spec:
       labels:
         app: {{ include "netmaker.fullname" . }}
     spec:
-      initContainers:
-        - name: init-sysctl
-          image: busybox
-          imagePullPolicy: IfNotPresent
-          command: ["/bin/sh", "-c"]
-          args: ["sysctl -w net.ipv4.ip_forward=1 && sysctl -w net.ipv4.conf.all.src_valid_mark=1 && sysctl -w net.ipv6.conf.all.disable_ipv6=0 && sysctl -w net.ipv6.conf.all.forwarding=1"]
-          securityContext:
-            privileged: true
-      dnsPolicy: ClusterFirstWithHostNet
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app
-                operator: In
-                values:
-                - {{ include "netmaker.fullname" . }}
-            topologyKey: "kubernetes.io/hostname"
       containers:
-      - env:
-        - name: SERVER_NAME
-          value: broker.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
-        - name: SERVER_API_CONN_STRING
-          value: api.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}:443
-        - name: SERVER_HTTP_HOST
-          value: api.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
-        - name: API_PORT
-          value: "8081"
-        {{- if not .Values.wireguard.kernel }}
-        - name: WG_QUICK_USERSPACE_IMPLEMENTATION
-          value: wireguard-go
-        {{- end }}
-        {{- if .Values.dns.enabled }}
-        - name: DNS_MODE
-          value: "on"
-        - name: COREDNS_ADDR
-          value: {{ required "A valid .Values.dns.clusterIP entry required! Choose an IP from your k8s service IP CIDR" .Values.dns.clusterIP }}
-        {{- else }}
-        - name: DNS_MODE
-          value: "off"
-        {{- end }}
-        - name: CLIENT_MODE
-          value: "on"
-        - name: MASTER_KEY
-          value: {{ include "netmaker.masterKey" . }}
-        - name: CORS_ALLOWED_ORIGIN
-          value: '*'
-        - name: NODE_ID
-          valueFrom:
-            fieldRef:
-              apiVersion: v1
-              fieldPath: metadata.name
-        - name: SQL_HOST
-          {{- if index .Values "postgresql-ha" "enabled" }}
-          value: '{{ .Release.Name }}-postgresql-ha-pgpool.{{ .Release.Namespace }}.svc.cluster.local'
-          {{- else }}
-          value: {{ .Values.wireguard.dbHost }}
-          {{- end }}
-        - name: SQL_PORT
-          value: "5432"
-        - name: SQL_DB
-          value: {{ index .Values "postgresql-ha" "postgresql" "database" }}
-        - name: SQL_USER
-          value: {{ index .Values "postgresql-ha" "postgresql" "username" }}
-        - name: SQL_PASS
-          value: {{ index .Values "postgresql-ha" "postgresql" "password" }}
-        - name: DATABASE
-          value: postgres
-        - name: DISPLAY_KEYS
-          value: "on"
-        - name: MQ_HOST
-          value: {{ include "netmaker.fullname" . }}-mqtt
-        - name: MQ_PORT
-          value: "{{ .Values.service.mqPort }}"
-        - name: MQ_SERVER_PORT
-          value: "1883"
-        - name: MQ_ADMIN_PASSWORD
-          value: {{ .Values.mq.password }}
-        - name: PLATFORM
-          value: "Kubernetes"
-        - name: VERBOSITY
-          value: "3"
+        envFrom:
+          - configMapRef:
+              name: netmaker-env
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         name: {{ include "netmaker.fullname" . }}
         ports:
         - containerPort: {{ .Values.service.restPort }}
           protocol: TCP
-      {{- if .Values.wireguard.enabled }}
-        {{ $count := (add .Values.wireguard.networkLimit 1 | int) }}
-        {{- range untilStep 1 $count 1 }}
-        - containerPort: {{ add 31820 . }}
-          protocol: UDP
-        {{- end }}
-      {{- end }}
-        securityContext:
-          capabilities:
-            add:
-            - NET_ADMIN
-            - NET_RAW
-            - SYS_MODULE
         volumeMounts:
         - mountPath: /etc/netmaker/
           name: shared-data
