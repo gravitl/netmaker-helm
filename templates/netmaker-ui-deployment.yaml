@@ -21,5 +21,5 @@ spec:
         - containerPort: {{ .Values.service.uiPort }}
         env:
         - name: BACKEND_URL
-          value: 'https://{{ .Values.ingress.hostPrefix.rest }}{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}'
+          value: "https://{{ .Values.ingress.hostPrefix.rest }}.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}"
       terminationGracePeriodSeconds: 15

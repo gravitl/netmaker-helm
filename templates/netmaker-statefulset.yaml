@@ -5,39 +5,52 @@ metadata:
     app: {{ include "netmaker.fullname" . }}
   name: {{ include "netmaker.fullname" . }}
 spec:
-  replicas: {{ .Values.replicas }}
-  serviceName: {{ include "netmaker.fullname" . }}-headless
-  selector:
-    matchLabels:
-      app: {{ include "netmaker.fullname" . }}
-  template:
-    metadata:
-      labels:
+    replicas: 3
+    selector:
+     matchLabels:
         app: {{ include "netmaker.fullname" . }}
-    spec:
-      containers:
-        envFrom:
-          - configMapRef:
-              name: netmaker-env
-        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        name: {{ include "netmaker.fullname" . }}
-        ports:
-        - containerPort: {{ .Values.service.restPort }}
-          protocol: TCP
-        volumeMounts:
-        - mountPath: /etc/netmaker/
-          name: shared-data
-        {{- if .Values.dns.enabled }}
-        - name: {{ include "netmaker.fullname" . }}-dns-pvc
-          mountPath: /root/config/dnsconfig
-        {{- end }}
-      volumes:
-      - name: shared-data
-        persistentVolumeClaim:
-          claimName: {{ include "netmaker.fullname" . }}-shared-data-pvc
-      {{- if .Values.dns.enabled }}
-      - name: {{ include "netmaker.fullname" . }}-dns-pvc
-        persistentVolumeClaim:
-          claimName: {{ include "netmaker.fullname" . }}-dns-pvc
-      {{- end }}
+    serviceName: {{ include "netmaker.fullname" . }}-headless
+    template:
+        metadata:
+            labels:
+                app: {{ include "netmaker.fullname" . }}
+        spec:
+            containers:
+            - name: {{ include "netmaker.fullname" . }}
+              envFrom:
+                - configMapRef:
+                    name: {{ include "netmaker.fullname" . }}-env
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              ports:
+              - containerPort: {{ .Values.service.restPort }}
+                protocol: TCP
+              volumeMounts:
+              - mountPath: /etc/netmaker/
+                name: shared-data
+            {{- if .Values.dns.enabled }}
+              - mountPath: /root/config/dnsconfig
+                name: {{ include "netmaker.fullname" . }}-dns-pvc
+            {{- end }}
+            volumes:
+            - name: shared-data
+              persistentVolumeClaim:
+                claimName: {{ include "netmaker.fullname" . }}-shared-data-pvc
+            {{- if .Values.dns.enabled }}
+            - name: {{ include "netmaker.fullname" . }}-dns-pvc
+              persistentVolumeClaim:
+                claimName: {{ include "netmaker.fullname" . }}-dns-pvc
+             {{- end }}
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "netmaker.fullname" . }}-shared-data-pvc
+spec:
+  storageClassName: {{ .Values.server.RWX.storageClassName }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.server.storageSize }}

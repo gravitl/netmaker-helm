@@ -1,4 +1,7 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "netmaker.fullname" . }}-env
 data:
   BROKER_ENDPOINT: "wss://{{ .Values.ingress.hostPrefix.broker }}.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}"
   SERVER_NAME: "{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}"
@@ -10,24 +13,27 @@ data:
   SERVER_HTTP_HOST: "{{ .Values.ingress.hostPrefix.rest }}.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}"
   API_PORT: "8081"
   MESSAGEQUEUE_BACKEND: "on"
-  MASTER_KEY: "REPLACE_MASTER_KEY"
+  MASTER_KEY: "{{ .Values.server.masterKey }}"
   CORS_ALLOWED_ORIGIN: "*"
   DISPLAY_KEYS: "on"
-  DATABASE: "postgres"
-  SERVER_BROKER_ENDPOINT: "ws://mq:1883"
+  DATABASE: {{  .Values.db.type }}
+  SERVER_BROKER_ENDPOINT: "ws://{{ .Release.Name }}-mqtt.{{ .Release.Namespace }}.svc.cluster.local:1883"
   VERBOSITY: "1"
   MQ_PASSWORD: "{{ .Values.mq.password }}"
   MQ_USERNAME: "{{ .Values.mq.username }}"
-  LICENSE_KEY: "{{ .Values.ee.licensekey }}" # needed if EE 
-  NETMAKER_TENANT_ID: "{{ .Values.ee.tenantId }}" # needed if EE
-{{- if .Values.turn.enabled -}}
+  LICENSE_KEY: "{{ .Values.server.ee.licensekey }}" # needed if EE 
+  NETMAKER_TENANT_ID: "{{ .Values.server.ee.tenantId }}" # needed if EE
+  SQL_HOST: "{{ .Release.Name }}-postgresql-ha-pgpool.{{ .Release.Namespace }}.svc.cluster.local"
+  SQL_PORT: "5432"
+  SQL_DB: {{  .Values.db.database }}
+  SQL_USER: {{ .Values.db.username }}
+  SQL_PASS: {{ .Values.db.password }}
+{{- if .Values.server.turn.enabled -}}
   TURN_SERVER_HOST: "REPLACE_TURN_HOST"
   TURN_SERVER_API_HOST: "REPLACE_TURN_API_HOST"
   TURN_PORT: "REPLACE_TURN_PORT"
   TURN_USERNAME: "REPLACE_TURN_USER"
   TURN_PASSWORD: "REPLACE_TURN_PASS"
-  USE_TURN: "false"
+  USE_TURN: "true"
 {{- end -}}
-kind: ConfigMap
-metadata:
-  name: netmaker-env
+

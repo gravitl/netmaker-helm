@@ -6,7 +6,6 @@
 {{- $uiSvcPort := .Values.service.uiPort -}}
 {{- $restSvcPort := .Values.service.restPort -}}
 {{- $mqSvcPort := 8883 -}}
-{{- $classname := required "A valid .Values.ingress.className entry required! Please set this to your ingress class (nginx, traefik)" .Values.ingress.className}}
 {{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
   {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
   {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
@@ -35,15 +34,13 @@ spec:
   {{- if .Values.ingress.tls }}
   tls:
     - hosts:
-        - {{ .Values.ingress.hostPrefix.broker }}{{ .Values.baseDomain }}
-      secretName: {{ $fullMQName }}-tls-secret
-        - {{ .Values.ingress.hostPrefix.rest }}{{ .Values.baseDomain }}
-      secretName: {{ $fullRESTName }}-tls-secret
-        - {{ .Values.ingress.hostPrefix.ui }}{{ .Values.baseDomain }}
-      secretName: {{ $fullUIName }}-tls-secret
+        - "{{ .Values.ingress.hostPrefix.broker }}.{{ .Values.baseDomain }}"
+        - "{{ .Values.ingress.hostPrefix.rest }}.{{ .Values.baseDomain }}"
+        - "{{ .Values.ingress.hostPrefix.ui }}.{{ .Values.baseDomain }}"
+      secretName: {{ $fullName }}-tls-secret
   {{- end }}
   rules:
-    - host: {{ .Values.ingress.hostPrefix.broker }}{{ .Values.baseDomain }}
+    - host: "{{ .Values.ingress.hostPrefix.broker }}.{{ .Values.baseDomain }}"
       http:
         paths:
           - path: /
@@ -60,7 +57,7 @@ spec:
               serviceName: {{ $fullMQName }}
               servicePort: {{ $mqSvcPort }}
               {{- end }}
-    - host: {{ .Values.ingress.hostPrefix.rest }}{{ .Values.baseDomain }}
+    - host: "{{ .Values.ingress.hostPrefix.rest }}.{{ .Values.baseDomain }}"
       http:
         paths:
           - path: /
@@ -77,7 +74,7 @@ spec:
               serviceName: {{ $fullRESTName }}
               servicePort: {{ $restSvcPort }}
               {{- end }}
-    - host: {{ .Values.ingress.hostPrefix.ui }}{{ .Values.baseDomain }}
+    - host: "{{ .Values.ingress.hostPrefix.ui }}.{{ .Values.baseDomain }}"
       http:
         paths:
           - path: /

@@ -4,7 +4,7 @@
 
 # -- number of netmaker server replicas to create
 replicas: 3
-baseDomain: "mynmabcd.nip.io"
+baseDomain: "146.190.9.68.nip.io"
 image:
   # -- The image repo to pull Netmaker image from
   repository: gravitl/netmaker
@@ -42,21 +42,24 @@ mq:
   # -- how many MQTT replicas to create
   replicas: 2
   singlenode: false
-  storageSize: 128Mi
+  existingClaim: false
+  existingClaimName: ""
   username: netmaker
   password: 3yyerWGdds43yegGR
+server:
   RWX:
     storageClassName: ""
-ee:
-  licensekey: ""
-  tenantId: ""
-
-turn:
-  enabled: false
-  turnHost: ""
-  turnApiHost: ""
-  turnUsername: ""
-  turnPassword: ""
+  storageSize: 128Mi
+  masterKey: "netmaker"
+  ee:
+    licensekey: ""
+    tenantId: ""
+  turn:
+    enabled: false
+    turnHost: ""
+    turnApiHost: ""
+    turnUsername: ""
+    turnPassword: ""
 
 dns:
   # -- whether or not to deploy coredns
@@ -82,26 +85,36 @@ ingress:
   # -- attempts to configure ingress if true
   enabled: true
   tls: true
-  className: ""
+  className: "nginx"
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
   hostPrefix:
-    ui: "dashboard."
-    broker: "broker."
-    rest: "api."
+    ui: "dashboard"
+    broker: "broker"
+    rest: "api"
+db:
+  type: "postgres"
+  username: postgres
+  # -- postgres pass to generate
+  password: postgres
+  # -- postgress db to generate
+  database: netmaker
 
 postgresql-ha:
   enabled: true
   postgresql:
     # -- postgres user to generate
-    username: netmaker
+    username: postgres
     # -- postgres pass to generate
-    password: netmaker
+    password: postgres
     # -- postgress db to generate
     database: netmaker
     # -- postgress number of replicas to deploy
     replicaCount: 2
+    repmgrUsername: postgres
+    repmgrPassword: postgres
+    repmgrDatabase: repmgr
   persistence:
     # -- size of postgres DB
     size: 1Gi
