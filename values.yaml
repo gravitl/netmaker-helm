@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 
-baseDomain: "" # required value
+baseDomain: "nm.example.com" # required value
 image:
   # -- The image repo to pull Netmaker image from
   repository: gravitl/netmaker
@@ -83,7 +83,6 @@ ingress:
   # -- attempts to configure ingress if true
   enabled: true
   tls: true
-  className: "nginx"
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
