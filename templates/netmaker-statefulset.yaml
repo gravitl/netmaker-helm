@@ -5,7 +5,7 @@ metadata:
     app: {{ include "netmaker.fullname" . }}
   name: {{ include "netmaker.fullname" . }}
 spec:
-    replicas: 3
+    replicas: {{ .Values.server.replicas }}
     selector:
      matchLabels:
         app: {{ include "netmaker.fullname" . }}

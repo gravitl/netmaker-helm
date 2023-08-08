@@ -2,8 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# -- number of netmaker server replicas to create
-replicas: 3
+
 baseDomain: "146.190.9.68.nip.io"
 image:
   # -- The image repo to pull Netmaker image from
@@ -11,7 +10,7 @@ image:
   # -- Pull Policy for images
   pullPolicy: Always
   # -- Override the image tag to pull
-  tag: "v0.20.5"
+  tag: "latest"
 
 # -- override the name for netmaker objects
 nameOverride: ""
@@ -41,12 +40,11 @@ ui:
 mq:
   # -- how many MQTT replicas to create
   replicas: 2
-  singlenode: false
-  existingClaim: false
-  existingClaimName: ""
   username: netmaker
   password: 3yyerWGdds43yegGR
 server:
+  # -- number of netmaker server replicas to create
+  replicas: 2
   RWX:
     storageClassName: ""
   storageSize: 128Mi
@@ -95,9 +93,11 @@ ingress:
     rest: "api"
 db:
   type: "postgres"
+  host: ""
+  port: 5432
   username: postgres
   # -- postgres pass to generate
-  password: postgres
+  password: password123 # set your own secure password
   # -- postgress db to generate
   database: netmaker
 
@@ -107,13 +107,13 @@ postgresql-ha:
     # -- postgres user to generate
     username: postgres
     # -- postgres pass to generate
-    password: postgres
+    password: password123  # set your own secure password
     # -- postgress db to generate
     database: netmaker
     # -- postgress number of replicas to deploy
     replicaCount: 2
     repmgrUsername: postgres
-    repmgrPassword: postgres
+    repmgrPassword: password123  # set your own secure password
     repmgrDatabase: repmgr
   persistence:
     # -- size of postgres DB

@@ -1,3 +1,7 @@
+{{- $dbHost := .Values.db.host  -}}
+{{- if eq $dbHost "" -}}
+{{- $dbHost = printf "%s-postgresql-ha-pgpool.%s.svc.cluster.local"   .Release.Name   .Release.Namespace   -}}
+{{- end -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -23,8 +27,8 @@ data:
   MQ_USERNAME: "{{ .Values.mq.username }}"
   LICENSE_KEY: "{{ .Values.server.ee.licensekey }}" # needed if EE 
   NETMAKER_TENANT_ID: "{{ .Values.server.ee.tenantId }}" # needed if EE
-  SQL_HOST: "{{ .Release.Name }}-postgresql-ha-pgpool.{{ .Release.Namespace }}.svc.cluster.local"
-  SQL_PORT: "5432"
+  SQL_HOST: "{{ $dbHost }}"
+  SQL_PORT: "{{ .Values.db.port }}"
   SQL_DB: {{  .Values.db.database }}
   SQL_USER: {{ .Values.db.username }}
   SQL_PASS: {{ .Values.db.password }}
