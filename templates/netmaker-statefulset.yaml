@@ -50,7 +50,7 @@ metadata:
 spec:
   storageClassName: {{ .Values.server.RWX.storageClassName }}
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: {{ .Values.server.storageSize }}

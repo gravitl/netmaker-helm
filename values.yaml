@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 
-baseDomain: "146.190.9.68.nip.io"
+baseDomain: "" # required value
 image:
   # -- The image repo to pull Netmaker image from
   repository: gravitl/netmaker

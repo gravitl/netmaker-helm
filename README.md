@@ -66,10 +66,6 @@ If you are not using Nginx and LetsEncrypt, we recommend leaving ingress.enabled
 
 You can find example ingress objects in the kube/example folder.
 
-#### Kernel WireGuard
-If you have control of the Kubernetes worker node servers, we recommend **first** installing WireGuard on the hosts, and then installing HA Netmaker in Kernel mode. By default, Netmaker will install with userspace WireGuard (wireguard-go) for maximum compatibility, and to avoid needing permissions at the host level. If you have installed WireGuard on your hosts, you should install Netmaker's helm chart with the following option:
-`--set wireguard.kernel=true`
-
 #### DNS
 By Default, the helm chart will deploy without DNS enabled. To enable DNS, specify with:
 `--set dns.enabled=true` 
