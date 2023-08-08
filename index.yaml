@@ -3,50 +3,38 @@ entries:
   netmaker:
   - apiVersion: v2
     appVersion: 0.20.5
-    created: "2023-08-06T12:25:50.354275+05:30"
+    created: "2023-08-08T15:50:24.860625+05:30"
     dependencies:
     - condition: postgresql-ha.enabled
       name: postgresql-ha
-      repository: https://charts.bitnami.com/bitnami
-      version: 7.11.0
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 11.8.1
     description: A Helm chart to run HA Netmaker on Kubernetes
-    digest: fa372483cde87f3cb5790906ee792348f4ea4f59d76974d4d7c3e3572927aa61
+    digest: 066e96154015b3d3bfd1fd456b5171d858ff77d161fa5b3cdb54687cd65cf68c
     icon: https://raw.githubusercontent.com/gravitl/netmaker/master/netclient/windowsdata/resource/netclient.ico
     name: netmaker
     type: application
     urls:
-    - netmaker-0.3.5.tgz
+    - https://gravitl.github.io/netmaker-helm/netmaker-0.3.5.tgz
     version: 0.3.5
-  - apiVersion: v2
-    appVersion: 0.20.5
-    created: "2023-08-06T12:25:50.350849+05:30"
-    dependencies:
-    - condition: postgresql-ha.enabled
-      name: postgresql-ha
-      repository: https://charts.bitnami.com/bitnami
-      version: 7.11.0
-    description: A Helm chart to run HA Netmaker on Kubernetes
-    digest: 6fae372a020f576342bbbaad8160f6ac2b4f2734b182c530f39408559334b866
-    icon: https://raw.githubusercontent.com/gravitl/netmaker/master/netclient/windowsdata/resource/netclient.ico
-    name: netmaker
-    type: application
-    urls:
-    - netmaker-0.3.4.tgz
-    version: 0.3.4
   postgresql-ha:
   - annotations:
       category: Database
+      licenses: Apache-2.0
     apiVersion: v2
-    appVersion: 11.13.0
-    created: "2023-08-06T12:25:50.358027+05:30"
+    appVersion: 15.3.0
+    created: "2023-08-08T15:50:24.86669+05:30"
     dependencies:
     - name: common
-      repository: https://charts.bitnami.com/bitnami
-      version: 1.x.x
-    description: Chart for PostgreSQL with HA architecture (using Replication Manager
-      (repmgr) and Pgpool).
-    digest: c06171bd61488b019ce3d85f3100014ca810d493a4bc778412775ac126c163ca
-    home: https://github.com/bitnami/charts/tree/master/bitnami/postgresql-ha
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: This PostgreSQL cluster solution includes the PostgreSQL replication
+      manager, an open-source tool for managing replication and failover on PostgreSQL
+      clusters.
+    digest: 3c4b6bb6b6b399f600fb972067fb94d5feccf34db9199cb2efdcc33487dd7b0c
+    home: https://bitnami.com
     icon: https://bitnami.com/assets/stacks/postgresql/img/postgresql-stack-220x234.png
     keywords:
     - postgresql
@@ -59,13 +47,12 @@ entries:
     - cluster
     - high availability
     maintainers:
-    - email: containers@bitnami.com
-      name: Bitnami
+    - name: VMware, Inc.
+      url: https://github.com/bitnami/charts
     name: postgresql-ha
     sources:
-    - https://github.com/bitnami/bitnami-docker-postgresql
-    - https://www.postgresql.org/
+    - https://github.com/bitnami/charts/tree/main/bitnami/postgresql-ha
     urls:
-    - charts/postgresql-ha-7.11.0.tgz
-    version: 7.11.0
-generated: "2023-08-06T12:25:50.342954+05:30"
+    - https://gravitl.github.io/netmaker-helm/charts/postgresql-ha-11.8.1.tgz
+    version: 11.8.1
+generated: "2023-08-08T15:50:24.853521+05:30"
