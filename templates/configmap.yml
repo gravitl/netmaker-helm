@@ -20,7 +20,7 @@ data:
   MASTER_KEY: "{{ .Values.server.masterKey }}"
   CORS_ALLOWED_ORIGIN: "*"
   DISPLAY_KEYS: "on"
-  DATABASE: {{  .Values.db.type }}
+  DATABASE: "{{  .Values.db.type }}"
   SERVER_BROKER_ENDPOINT: "ws://{{ .Release.Name }}-mqtt.{{ .Release.Namespace }}.svc.cluster.local:1883"
   VERBOSITY: "1"
   MQ_PASSWORD: "{{ .Values.mq.password }}"
@@ -29,9 +29,9 @@ data:
   NETMAKER_TENANT_ID: "{{ .Values.server.ee.tenantId }}" # needed if EE
   SQL_HOST: "{{ $dbHost }}"
   SQL_PORT: "{{ .Values.db.port }}"
-  SQL_DB: {{  .Values.db.database }}
-  SQL_USER: {{ .Values.db.username }}
-  SQL_PASS: {{ .Values.db.password }}
+  SQL_DB: "{{  .Values.db.database }}"
+  SQL_USER: "{{ .Values.db.username }}"
+  SQL_PASS: "{{ .Values.db.password }}"
 {{- if .Values.server.turn.enabled -}}
   TURN_SERVER_HOST: "REPLACE_TURN_HOST"
   TURN_SERVER_API_HOST: "REPLACE_TURN_API_HOST"
