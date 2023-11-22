@@ -52,6 +52,22 @@ server:
   ee:
     licensekey: ""
     tenantId: ""
+   # Duration of JWT token validity in seconds
+  jwtDuration: 43200
+  # Auto disable a user's connecteds clients bassed on JWT token expiration
+  racAutoDisable: "true" 
+   # "<azure-ad|github|google|oidc>"
+  authProvider: ""  
+   # "<client id of your oauth provider>"
+  oAuthclientID: ""
+   # "<client secret of your oauth provider>"
+  oAuthClientSecret: ""
+   # "https://dashboard.<netmaker base domain>"
+  frontendURL: ""
+  # "<only for azure, you may optionally specify the tenant for the OAuth>"
+  azureTenant: "" 
+  # https://oidc.yourprovider.com - URL of oidc provider
+  oidcIssuer: "" 
   turn:
     enabled: false
     turnHost: ""

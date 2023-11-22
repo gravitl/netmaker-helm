@@ -32,6 +32,15 @@ data:
   SQL_DB: "{{  .Values.db.database }}"
   SQL_USER: "{{ .Values.db.username }}"
   SQL_PASS: "{{ .Values.db.password }}"
+  JWT_VALIDITY_DURATION: "{{ .Values.server.jwtDuration }}"
+  RAC_AUTO_DISABLE: "{{ .Values.server.racAutoDisable }}"
+  CACHING_ENABLED: "false" # should be false for HA to work
+  AUTH_PROVIDER: "{{ .Values.server.authProvider }}"
+  CLIENT_ID: "{{ .Values.server.oAuthclientID }}"
+  CLIENT_SECRET: "{{ .Values.server.oAuthClientSecret }}"
+  FRONTEND_URL: "{{ .Values.server.frontendURL }}"
+  AZURE_TENANT: "{{ .Values.server.azureTenant }}"
+  OIDC_ISSUER: "{{ .Values.server.oidcIssuer }}"
 {{- if .Values.server.turn.enabled -}}
   TURN_SERVER_HOST: "REPLACE_TURN_HOST"
   TURN_SERVER_API_HOST: "REPLACE_TURN_API_HOST"
