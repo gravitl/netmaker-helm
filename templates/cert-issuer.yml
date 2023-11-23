@@ -1,0 +1,20 @@
+{{- if .Values.certissuer.enabled }}
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ .Values.certissuer.name }}
+  namespace: {{ .Values.certissuer.namespace }}
+spec:
+  acme:
+    # Email address used for ACME registration
+    email: {{ .Values.certissuer.acme.email }}
+    server: {{ .Values.certissuer.acme.server }}
+    privateKeySecretRef:
+      # Name of a secret used to store the ACME account private key
+      name: {{ .Values.certissuer.acme.secret }}
+    # Add a single challenge solver, HTTP01 using nginx
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+{{- end }}

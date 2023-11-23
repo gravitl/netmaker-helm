@@ -20,29 +20,27 @@ spec:
               envFrom:
                 - configMapRef:
                     name: {{ include "netmaker.fullname" . }}-env
-              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
+              imagePullPolicy: {{ .Values.server.image.pullPolicy }}
               ports:
               - containerPort: {{ .Values.service.restPort }}
                 protocol: TCP
+            {{- if .Values.dns.enabled }}
               volumeMounts:
               - mountPath: /etc/netmaker/
                 name: shared-data
-            {{- if .Values.dns.enabled }}
               - mountPath: /root/config/dnsconfig
                 name: {{ include "netmaker.fullname" . }}-dns-pvc
-            {{- end }}
             volumes:
             - name: shared-data
               persistentVolumeClaim:
                 claimName: {{ include "netmaker.fullname" . }}-shared-data-pvc
-            {{- if .Values.dns.enabled }}
             - name: {{ include "netmaker.fullname" . }}-dns-pvc
               persistentVolumeClaim:
                 claimName: {{ include "netmaker.fullname" . }}-dns-pvc
-             {{- end }}
+            {{- end }}
 ---
-
+ {{- if .Values.dns.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -54,3 +52,4 @@ spec:
   resources:
     requests:
       storage: {{ .Values.server.storageSize }}
+{{- end }}

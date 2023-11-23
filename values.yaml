@@ -3,14 +3,7 @@
 # Declare variables to be passed into your templates.
 
 
-baseDomain: "nm.example.com" # required value
-image:
-  # -- The image repo to pull Netmaker image from
-  repository: gravitl/netmaker
-  # -- Pull Policy for images
-  pullPolicy: Always
-  # -- Override the image tag to pull
-  tag: "latest"
+baseDomain: "abhi-k8s.clustercat.com" # required value
 
 # -- override the name for netmaker objects
 nameOverride: ""
@@ -36,6 +29,13 @@ podSecurityContext: {}
 ui:
   # -- how many UI replicas to create
   replicas: 2
+  image:
+    # -- The image repo to pull Netmaker image from
+    repository: gravitl/netmaker-ui
+    # -- Pull Policy for images
+    pullPolicy: Always
+    # -- Override the image tag to pull
+    tag: "v0.21.2"
 
 mq:
   # -- how many MQTT replicas to create
@@ -45,6 +45,13 @@ mq:
 server:
   # -- number of netmaker server replicas to create
   replicas: 2
+  image:
+    # -- The image repo to pull Netmaker image from
+    repository: gravitl/netmaker
+    # -- Pull Policy for images
+    pullPolicy: Always
+    # -- Override the image tag to pull
+    tag: "v0.21.2"
   RWX:
     storageClassName: ""
   storageSize: 128Mi
@@ -134,3 +141,11 @@ postgresql-ha:
     # -- size of postgres DB
     size: 1Gi
 
+certissuer:
+  enabled: false
+  name: letsencrypt-prod
+  namespace: cert-manager
+  acme:
+    email: youremail@domain.com
+    secret: letsencrypt-prod
+    server: https://acme-v02.api.letsencrypt.org/directory
