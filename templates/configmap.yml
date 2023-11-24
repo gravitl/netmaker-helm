@@ -23,6 +23,7 @@ data:
   DATABASE: "{{  .Values.db.type }}"
   SERVER_BROKER_ENDPOINT: "ws://{{ .Release.Name }}-mqtt.{{ .Release.Namespace }}.svc.cluster.local:1883"
   VERBOSITY: "1"
+  K8s: "true"
   MQ_PASSWORD: "{{ .Values.mq.password }}"
   MQ_USERNAME: "{{ .Values.mq.username }}"
   LICENSE_KEY: "{{ .Values.server.ee.licensekey }}" # needed if EE 
