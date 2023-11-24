@@ -141,11 +141,4 @@ postgresql-ha:
     # -- size of postgres DB
     size: 1Gi
 
-certissuer:
-  enabled: false
-  name: letsencrypt-prod
-  namespace: cert-manager
-  acme:
-    email: youremail@domain.com
-    secret: letsencrypt-prod
-    server: https://acme-v02.api.letsencrypt.org/directory
+
