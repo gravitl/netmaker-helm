@@ -1,4 +1,4 @@
-{{- if .Values.dns.enabled -}}
+{{- if .Values.dns.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -69,14 +69,14 @@ spec:
     app: {{ include "netmaker.fullname" . }}-coredns
   sessionAffinity: None
   type: ClusterIP
-  clusterIP: {{ required "A valid .Values.dns.clusterIP entry required! Choose an IP from your k8s service IP CIDR" .Values.dns.clusterIP}}
+  clusterIP: {{ .Values.dns.clusterIP}}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ include "netmaker.fullname" . }}-dns-pvc
 spec:
-  storageClassName: {{ required "A valid .Values.dns.RWX.storageClassName entry required! Specify an available RWX storage class." .Values.dns.RWX.storageClassName}}
+  storageClassName: {{ .Values.dns.RWX.storageClassName }}
   accessModes:
     - ReadWriteMany
   resources:

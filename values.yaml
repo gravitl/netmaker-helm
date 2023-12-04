@@ -2,16 +2,8 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# -- number of netmaker server replicas to create
-replicas: 3
 
-image:
-  # -- The image repo to pull Netmaker image from
-  repository: gravitl/netmaker
-  # -- Pull Policy for images
-  pullPolicy: Always
-  # -- Override the image tag to pull
-  tag: "v0.17.1"
+baseDomain: "abhi-k8s.clustercat.com" # required value
 
 # -- override the name for netmaker objects
 nameOverride: ""
@@ -37,19 +29,65 @@ podSecurityContext: {}
 ui:
   # -- how many UI replicas to create
   replicas: 2
+  image:
+    # -- The image repo to pull Netmaker image from
+    repository: gravitl/netmaker-ui
+    # -- Pull Policy for images
+    pullPolicy: Always
+    # -- Override the image tag to pull
+    tag: "v0.21.2"
 
 mq:
   # -- how many MQTT replicas to create
   replicas: 2
-  singlenode: false
-  storageSize: 128Mi
+  username: netmaker
   password: 3yyerWGdds43yegGR
-
+server:
+  # -- number of netmaker server replicas to create
+  replicas: 2
+  image:
+    # -- The image repo to pull Netmaker image from
+    repository: gravitl/netmaker
+    # -- Pull Policy for images
+    pullPolicy: Always
+    # -- Override the image tag to pull
+    tag: "v0.21.2"
+  RWX:
+    storageClassName: ""
+  storageSize: 128Mi
+  masterKey: "netmaker"
+  ee:
+    licensekey: ""
+    tenantId: ""
+   # Duration of JWT token validity in seconds
+  jwtDuration: 43200
+  # Auto disable a user's connecteds clients bassed on JWT token expiration
+  racAutoDisable: "true" 
+   # "<azure-ad|github|google|oidc>"
+  authProvider: ""  
+   # "<client id of your oauth provider>"
+  oAuthclientID: ""
+   # "<client secret of your oauth provider>"
+  oAuthClientSecret: ""
+   # "https://dashboard.<netmaker base domain>"
+  frontendURL: ""
+  # "<only for azure, you may optionally specify the tenant for the OAuth>"
+  azureTenant: "" 
+  # https://oidc.yourprovider.com - URL of oidc provider
+  oidcIssuer: "" 
+  turn:
+    enabled: false
+    turnHost: ""
+    turnApiHost: ""
+    turnUsername: ""
+    turnPassword: ""
 
 dns:
   # -- whether or not to deploy coredns
   enabled: false
   storageSize: 128Mi
+  RWX:
+    storageClassName: ""
 
 setIpForwarding:
   enabled: true
@@ -67,61 +105,40 @@ service:
 ingress:
   # -- attempts to configure ingress if true
   enabled: true
-  tls:
-    enabled: false
-    issuerName: "letsencrypt-prod"
+  tls: true
   annotations:
-    ui: {}
-    rest: {}
-    mq: {}
-    base:
-      # -- annotation to generate ACME certs if available
-      kubernetes.io/ingress.allow-http: "false"
-    tls:
-      # -- use acme cert if available
-      kubernetes.io/tls-acme: "true"
-    nginx:
-      # -- Redirect http to https
-      nginx.ingress.kubernetes.io/ssl-redirect: 'true'
-      # -- destination addr for route
-      nginx.ingress.kubernetes.io/rewrite-target: /
-    traefik:
-      # -- Redirect to https
-      traefik.ingress.kubernetes.io/redirect-entry-point: https
-      # -- Redirect to https permanently
-      traefik.ingress.kubernetes.io/redirect-permanent: "true"
-      # -- rule type
-      traefik.ingress.kubernetes.io/rule-type: "PathPrefixStrip"
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
   hostPrefix:
-    # -- ui route subdomain
-    ui: 'dashboard.'
-    # -- api (REST) route subdomain
-    rest: 'api.'
-    # -- mqtt route subdomain
-    broker: 'broker.'
-
-wireguard:
-  # -- whether or not to use WireGuard on server
-  enabled: true
-  service:
-    annotations: {}
-    serviceType: NodePort
-  # -- whether or not to use Kernel WG (should be false unless WireGuard is installed on hosts).
-  kernel: false
-  # -- max number of networks that Netmaker will support if running with WireGuard enabled
-  networkLimit: 10
+    ui: "dashboard"
+    broker: "broker"
+    rest: "api"
+db:
+  type: "postgres"
+  host: ""
+  port: 5432
+  username: postgres
+  # -- postgres pass to generate
+  password: password123 # set your own secure password
+  # -- postgress db to generate
+  database: netmaker
 
 postgresql-ha:
+  enabled: true
   postgresql:
     # -- postgres user to generate
-    username: netmaker
+    username: postgres
     # -- postgres pass to generate
-    password: netmaker
+    password: password123  # set your own secure password
     # -- postgress db to generate
     database: netmaker
     # -- postgress number of replicas to deploy
     replicaCount: 2
-    enabled: true
+    repmgrUsername: postgres
+    repmgrPassword: password123  # set your own secure password
+    repmgrDatabase: repmgr
   persistence:
     # -- size of postgres DB
     size: 1Gi
+
+
