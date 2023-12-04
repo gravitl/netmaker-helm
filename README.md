@@ -32,9 +32,7 @@ helm install netmaker/netmaker --generate-name \ # generate a random id for the 
 --set server.replicas=3 \ # number of server replicas to deploy (3 by default) 
 --set ingress.enabled=true \ # deploy ingress automatically (requires nginx and cert-manager + letsencrypt) 
 --set ingress.kubernetes.io/ingress.class=nginx \ # ingress class to use
---set ingress.cert-manager.io/cluster-issuer=letsencrypt-prod \ # LetsEncrypt certificate issuer to use 
---set dns.enabled=false \ # deploy and enable private DNS management with CoreDNS 
---set dns.clusterIP=10.245.75.75 --set dns.RWX.storageClassName=nfs \ # required fields for DNS 
+--set ingress.cert-manager.io/cluster-issuer=letsencrypt-prod \ # LetsEncrypt certificate issuer to use
 --set postgresql-ha.postgresql.replicaCount=2 \ # number of DB replicas to deploy (default 2)
 ```
 
