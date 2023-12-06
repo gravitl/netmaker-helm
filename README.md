@@ -39,7 +39,7 @@ helm install netmaker/netmaker --generate-name \ # generate a random id for the 
 ### Recommended Settings:
 
 This install has some notable exceptions:
-- Ingress **must** be manually configured post-install (need to create valid Ingress with TLS)
+- Ingress **must** be configured on your cluster, with cluster issuer for TLS certs
 - DNS will be disabled
 
 Below, we discuss the considerations for Ingress, Kernel WireGuard, and DNS.
