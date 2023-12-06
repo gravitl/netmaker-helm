@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 
-baseDomain: "abhi-k8s.clustercat.com" # required value
+baseDomain: "nm.example.com" # required value
 
 # -- override the name for netmaker objects
 nameOverride: ""
