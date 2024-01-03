@@ -3,19 +3,35 @@ entries:
   netmaker:
   - apiVersion: v2
     appVersion: 0.21.2
-    created: "2023-08-08T15:50:24.860625+05:30"
+    created: "2024-01-03T14:36:23.432741735-06:00"
     dependencies:
     - condition: postgresql-ha.enabled
       name: postgresql-ha
       repository: oci://registry-1.docker.io/bitnamicharts
       version: 11.8.1
     description: A Helm chart to run HA Netmaker on Kubernetes
-    digest: 066e96154015b3d3bfd1fd456b5171d858ff77d161fa5b3cdb54687cd65cf68c
+    digest: c073952d67a21834e8f253dd6744c62fac5fd754266dc1fd09d4222bcbfff067
     icon: https://raw.githubusercontent.com/gravitl/netmaker/master/netclient/windowsdata/resource/netclient.ico
     name: netmaker
     type: application
     urls:
-    - https://gravitl.github.io/netmaker-helm/netmaker-0.3.5.tgz
+    - netmaker-0.4.0.tgz
+    version: 0.4.0
+  - apiVersion: v2
+    appVersion: 0.21.2
+    created: "2024-01-03T14:36:23.424181142-06:00"
+    dependencies:
+    - condition: postgresql-ha.enabled
+      name: postgresql-ha
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 11.8.1
+    description: A Helm chart to run HA Netmaker on Kubernetes
+    digest: 4e93984611624f6898b98f274694413c8e341d7fde038e56c6d2660b5b3b82dc
+    icon: https://raw.githubusercontent.com/gravitl/netmaker/master/netclient/windowsdata/resource/netclient.ico
+    name: netmaker
+    type: application
+    urls:
+    - netmaker-0.3.5.tgz
     version: 0.3.5
   postgresql-ha:
   - annotations:
@@ -23,7 +39,7 @@ entries:
       licenses: Apache-2.0
     apiVersion: v2
     appVersion: 15.3.0
-    created: "2023-08-08T15:50:24.86669+05:30"
+    created: "2024-01-03T14:36:23.442122501-06:00"
     dependencies:
     - name: common
       repository: oci://registry-1.docker.io/bitnamicharts
@@ -53,6 +69,6 @@ entries:
     sources:
     - https://github.com/bitnami/charts/tree/main/bitnami/postgresql-ha
     urls:
-    - https://gravitl.github.io/netmaker-helm/charts/postgresql-ha-11.8.1.tgz
+    - charts/postgresql-ha-11.8.1.tgz
     version: 11.8.1
-generated: "2023-08-08T15:50:24.853521+05:30"
+generated: "2024-01-03T14:36:23.412938405-06:00"
