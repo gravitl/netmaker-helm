@@ -1,6 +1,6 @@
 {{- $dbHost := .Values.db.host  -}}
 {{- if eq $dbHost "" -}}
-{{- $dbHost = printf "%s-postgresql-ha-pgpool.%s.svc.cluster.local"   .Release.Name   .Release.Namespace   -}}
+{{- $dbHost = printf "%s-postgresql-ha-pgpool.%s.svc.cluster.local"   (include "netmaker.fullname" .)   .Release.Namespace   -}}
 {{- end -}}
 apiVersion: v1
 kind: ConfigMap
@@ -21,7 +21,7 @@ data:
   CORS_ALLOWED_ORIGIN: "*"
   DISPLAY_KEYS: "on"
   DATABASE: "{{  .Values.db.type }}"
-  SERVER_BROKER_ENDPOINT: "ws://{{ .Release.Name }}-mqtt.{{ .Release.Namespace }}.svc.cluster.local:1883"
+  SERVER_BROKER_ENDPOINT: "ws://{{ include "netmaker.fullname" . }}-mqtt.{{ .Release.Namespace }}.svc.cluster.local:1883"
   VERBOSITY: "1"
   K8s: "true"
   MQ_PASSWORD: "{{ .Values.mq.password }}"
