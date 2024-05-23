@@ -30,4 +30,24 @@ spec:
     app: '{{ include "netmaker.fullname" . }}'
   sessionAffinity: None
   type: {{ .Values.service.type }}
-
+{{- if .Values.service.wireguard.healthcheck.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    {{- include "netmaker.labels" . | nindent 4 }}
+  name: '{{ include "netmaker.fullname" . }}-wg-healthcheck'
+spec:
+  type: {{ .Values.service.wireguard.healthcheck.serviceType }}
+  ports:
+  - name: wg-healthcheck
+    protocol: TCP
+    port: {{ .Values.service.wireguard.healthcheck.port }}
+    targetPort: 80
+    {{- if .Values.service.wireguard.healthcheck.nodePort }}
+    nodePort: {{ .Values.service.wireguard.healthcheck.nodePort }}
+    {{- end }}
+  selector:
+    app: '{{ include "netmaker.fullname" . }}'
+{{- end }}

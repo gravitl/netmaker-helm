@@ -42,6 +42,7 @@ mq:
   replicas: 2
   username: netmaker
   password: 3yyerWGdds43yegGR
+
 server:
   # -- number of netmaker server replicas to create
   replicas: 2
@@ -81,6 +82,9 @@ server:
     turnApiHost: ""
     turnUsername: ""
     turnPassword: ""
+  extraContainers: {}
+  extraPodAntiAffinity: {}
+  extraAnnotations: {}
 
 dns:
   # -- whether or not to deploy coredns
@@ -101,6 +105,19 @@ service:
   mqPort: 443
   # -- port for UI service
   uiPort: 80
+  wireguard:
+    healthcheck:
+      # -- whether to enable healtchcheck for Wireguard
+      enabled: false
+      # -- the service type
+      serviceType: ClusterIP
+      # -- port for Wireguard healthcheck
+      port: 80
+      # -- the nodeport
+      nodePort:
+    metrics:
+      # --whether to enable metrics for Wireguard
+      enabled: false
 
 ingress:
   # -- attempts to configure ingress if true

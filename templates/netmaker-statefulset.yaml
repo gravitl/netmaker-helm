@@ -14,8 +14,54 @@ spec:
         metadata:
             labels:
                 app: {{ include "netmaker.fullname" . }}
+            annotations:
+            {{- if .Values.service.wireguard.metrics.enabled }}
+              prometheus.io/path: '/metrics'
+              prometheus.io/port: '9586'
+              prometheus.io/scrape: 'true'
+            {{- end }}
         spec:
+            affinity:
+              podAntiAffinity:
+                {{- with .Values.server.extraPodAntiAffinity }}
+                {{ toYaml . | nindent 16 }}
+                {{- end }}
             containers:
+            {{- if .Values.service.wireguard.healthcheck.enabled }}
+            - name: sidecar-healthcheck
+              image: nginx:alpine
+              ports:
+                - name: wg-health
+                  containerPort: 80
+                  protocol: TCP
+            {{- end }}
+            {{- if .Values.service.wireguard.metrics.enabled }}
+            - name: prometheus-exporter
+              image: mindflavor/prometheus-wireguard-exporter:3.6.6
+              args: ["-a", "false"]
+              ports:
+                - name: http-prometheus
+                  containerPort: 9586
+                  protocol: TCP
+              env:
+              - name: PROMETHEUS_WIREGUARD_EXPORTER_EXPORT_REMOTE_IP_AND_PORT_ENABLED
+                value: "false"
+              - name: PROMETHEUS_WIREGUARD_EXPORTER_SEPARATE_ALLOWED_IPS_ENABLED
+                value: "true"
+              - name: PROMETHEUS_WIREGUARD_EXPORTER_VERBOSE_ENABLED
+                value: "true"
+              - name: EXPORT_LATEST_HANDSHAKE_DELAY
+                value: "true"
+              securityContext:
+                runAsUser: 0
+                allowPrivilegeEscalation: false
+                capabilities:
+                  add:
+                  - NET_ADMIN
+            {{- end }}
+            {{- with .Values.server.extraContainers }}
+            {{ toYaml . | nindent 12 }}
+            {{- end }}
             - name: {{ include "netmaker.fullname" . }}
               envFrom:
                 - configMapRef:
