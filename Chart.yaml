@@ -21,10 +21,10 @@ version: 0.3.5
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "0.17.1"
+appVersion: "0.21.2"
 
 dependencies:
   - name: "postgresql-ha"
-    version: "7.11.0"
-    repository: https://charts.bitnami.com/bitnami
+    version: "11.8.1"
+    repository: oci://registry-1.docker.io/bitnamicharts
     condition: postgresql-ha.enabled

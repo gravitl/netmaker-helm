@@ -16,14 +16,11 @@ spec:
     spec:
       containers:
       - name: {{ include "netmaker.fullname" . }}-ui
-        image: gravitl/netmaker-ui:{{ .Values.image.tag }}
+        image: "{{ .Values.ui.image.repository }}:{{ .Values.ui.image.tag }}"
+        imagePullPolicy: {{ .Values.ui.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.service.uiPort }}
         env:
         - name: BACKEND_URL
-          {{- if .Values.ingress.enabled }}
-          value: 'https://{{ .Values.ingress.hostPrefix.rest }}{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}'
-          {{- else }}
-          value: 'http://{{ include "netmaker.fullname" . }}-rest.{{ .Release.Namespace }}.{{ .Values.service.kubernetesServiceDomain }}:{{ .Values.service.restPort }}'
-          {{- end }}
+          value: "https://{{ .Values.ingress.hostPrefix.rest }}.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}"
       terminationGracePeriodSeconds: 15

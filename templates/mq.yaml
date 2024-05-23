@@ -1,9 +1,16 @@
+{{- $fullName := include "netmaker.fullname" . -}}
+{{- $claimName := printf "%s-%s" $fullName  "shared-data-pvc"  }}
+{{- if .Values.mq.existingClaim }}
+  {{- $claimName = .Values.mq.existingClaimName -}} 
+{{- end }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "netmaker.fullname" . }}-mqtt
   labels:
-    app: {{ include "netmaker.fullname" . }}-mqtt
+    app.kubernetes.io/instance: {{ include "netmaker.fullname" . }}-mqtt
+    app.kubernetes.io/name: {{ include "netmaker.fullname" . }}-mqtt
+  name: {{ include "netmaker.fullname" . }}-mqtt
 spec:
   selector:
     matchLabels:
@@ -16,29 +23,14 @@ spec:
       labels:
         app: {{ include "netmaker.fullname" . }}-mqtt
     spec:
-      {{- if .Values.mq.singlenode }}    
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: mqhost
-                operator: In
-                values:
-                - "true"
-      {{- end }}
       containers:
-      - env:
-        - name: NETMAKER_SERVER_HOST
-          {{- if .Values.ingress.enabled }}
-          value: https://api.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}
-          {{- else }}
-          value: 'http://{{ include "netmaker.fullname" . }}-rest.{{ .Release.Namespace }}.{{ .Values.service.kubernetesServiceDomain }}:{{ .Values.service.restPort }}'
-          {{- end }}
+      - name: mosquitto
+        envFrom:
+          - configMapRef:
+              name: {{ include "netmaker.fullname" . }}-env
         image: eclipse-mosquitto:2.0.11-openssl
         command: ["/mosquitto/config/wait.sh"]
         imagePullPolicy: Always
-        name: mosquitto
         livenessProbe:
           failureThreshold: 3
           periodSeconds: 10
@@ -77,8 +69,6 @@ spec:
         - mountPath: /mosquitto/config/wait.sh
           name: wait-script
           subPath: wait.sh
-        - mountPath: /mosquitto/data
-          name: shared-data
       volumes:
       - configMap:
           name: {{ include "netmaker.fullname" . }}-mqtt-config
@@ -87,13 +77,6 @@ spec:
           name: {{ include "netmaker.fullname" . }}-mqtt-wait
           defaultMode: 0744
         name: wait-script
-      - name: shared-data
-        persistentVolumeClaim:
-        {{- if .Values.mq.existingClaim }}
-          claimName: {{ .Values.mq.existingClaim }}
-        {{- else }} 
-          claimName: {{ include "netmaker.fullname" . }}-shared-data-pvc
-        {{- end }}
 ---
 apiVersion: v1
 kind: Service
@@ -112,21 +95,8 @@ spec:
   selector:
     app: {{ include "netmaker.fullname" . }}-mqtt
   sessionAffinity: None
+
 ---
-{{- if not .Values.mq.existingClaim }}
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: {{ include "netmaker.fullname" . }}-shared-data-pvc
-spec:
-  storageClassName: {{ required "A valid .Values.mq.RWX.storageClassName entry required! Specify an available RWX storage class." .Values.mq.RWX.storageClassName}}
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: {{ .Values.mq.storageSize }}
----
-{{- end }}
 apiVersion: v1
 data:
   mosquitto.conf: |
@@ -137,8 +107,7 @@ data:
     listener 1883
     protocol websockets
     allow_anonymous false
-    plugin /usr/lib/mosquitto_dynamic_security.so
-    plugin_opt_config_file /mosquitto/data/dynamic-security.json
+    password_file /mosquitto/password.txt
 kind: ConfigMap
 metadata:
   labels:
@@ -151,23 +120,18 @@ data:
   wait.sh: |
     #!/bin/ash
 
-    wait_for_netmaker() {
-      echo "SERVER: ${NETMAKER_SERVER_HOST}"
-      until curl --output /dev/null --silent --fail --head \
-        --location "${NETMAKER_SERVER_HOST}/api/server/health"; do
-        echo "Waiting for netmaker server to startup"
-        sleep 1
-      done
+    encrypt_password() {
+      echo "${MQ_USERNAME}:${MQ_PASSWORD}" > /mosquitto/password.txt
+      mosquitto_passwd -U /mosquitto/password.txt
     }
 
     main(){
-    # wait for netmaker to startup
-    apk add curl
-    wait_for_netmaker
-    echo "Starting MQ..."
-    # Run the main container command.
-    /docker-entrypoint.sh
-    /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf
+
+      encrypt_password
+      echo "Starting MQ..."
+      # Run the main container command.
+      /docker-entrypoint.sh
+      /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf
 
     }
 

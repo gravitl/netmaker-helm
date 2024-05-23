@@ -6,12 +6,6 @@
 {{- $uiSvcPort := .Values.service.uiPort -}}
 {{- $restSvcPort := .Values.service.restPort -}}
 {{- $mqSvcPort := 8883 -}}
-{{- $classname := required "A valid .Values.ingress.className entry required! Please set this to your ingress class (nginx, traefik)" .Values.ingress.className}}
-{{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
-  {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
-  {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
-  {{- end }}
-{{- end }}
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
 {{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
@@ -21,156 +15,27 @@ apiVersion: extensions/v1beta1
 {{- end }}
 kind: Ingress
 metadata:
-  name: {{ $fullUIName }}
+  name: {{ $fullName }}
   labels:
     {{- include "netmaker.labels" . | nindent 4 }}
-  {{- with .Values.ingress }}
+  {{- with .Values.ingress.annotations }}
   annotations:
-    {{- toYaml .annotations.base | nindent 4 }}
-    {{- if or (eq .className "nginx") (eq .className "public") }}
-    {{- toYaml .annotations.nginx | nindent 4 }}
-    {{- end }}
-    {{- if eq .className "traefik" }}
-    {{- toYaml .annotations.traefik | nindent 4 }}
-    {{- end }}
-    {{- if and .tls.enabled (eq .tls.issuerName "" )}}
-    {{- toYaml .annotations.tls | nindent 4 }}
-    {{- else if .tls.enabled}}
-    cert-manager.io/cluster-issuer: {{ .tls.issuerName }}
-    {{- end }}
-    {{- with .annotations.ui }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
-  {{- end }}
-spec:
-  {{- if (not (eq .Values.ingress.className "traefik")) }}
-  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
-  ingressClassName: {{ required "A valid .Values.ingress.className entry required!" .Values.ingress.className}}
-  {{- end }}
-  {{- end }}
-  {{- if .Values.ingress.tls.enabled }}
-  tls:
-    - hosts:
-        - {{ .Values.ingress.hostPrefix.ui }}{{ .Values.baseDomain }}
-      secretName: {{ $fullUIName }}-tls-secret
-  {{- end}}
-  rules:
-    - host: {{ .Values.ingress.hostPrefix.ui }}{{ .Values.baseDomain }}
-      http:
-        paths:
-          - path: /
-            {{- if (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
-            pathType: Prefix
-            {{- end }}
-            backend:
-              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
-              service:
-                name: {{ $fullUIName }}
-                port:
-                  number: {{ $uiSvcPort }}
-              {{- else }}
-              serviceName: {{ $fullUIName }}
-              servicePort: {{ $uiSvcPort }}
-              {{- end }}
----
-{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1
-{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1beta1
-{{- else -}}
-apiVersion: extensions/v1beta1
-{{- end }}
-kind: Ingress
-metadata:
-  name: {{ $fullRESTName }}
-  labels:
-    {{- include "netmaker.labels" . | nindent 4 }}
-  {{- with .Values.ingress }}
-  annotations:
-    {{- toYaml .annotations.base | nindent 4 }}
-    {{- if or (eq .className "nginx") (eq .className "public") }}
-    {{- toYaml .annotations.nginx | nindent 4 }}
-    {{- end }}
-    {{- if eq .className "traefik" }}
-    {{- toYaml .annotations.traefik | nindent 4 }}
-    {{- end }}
-    {{- if and .tls.enabled (eq .tls.issuerName "" )}}
-    {{- toYaml .annotations.tls | nindent 4 }}
-    {{- else if .tls.enabled}}
-    cert-manager.io/cluster-issuer: {{ .tls.issuerName }}
-    {{- end }}
-    {{- with .annotations.rest }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
-  {{- end }}
-spec:
-  {{- if (not (eq .Values.ingress.className "traefik")) }}
-  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
-  ingressClassName:  {{ required "A valid .Values.ingress.className entry required!" .Values.ingress.className}}
-  {{- end }}
-  {{- end }}
-  {{- if .Values.ingress.tls.enabled }}
-  tls:
-    - hosts:
-        - {{ .Values.ingress.hostPrefix.rest }}{{ .Values.baseDomain }}
-      secretName: {{ $fullRESTName }}-tls-secret
-  {{- end }}
-  rules:
-    - host: {{ .Values.ingress.hostPrefix.rest }}{{ .Values.baseDomain }}
-      http:
-        paths:
-          - path: /
-            {{- if (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
-            pathType: Prefix
-            {{- end }}
-            backend:
-              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
-              service:
-                name: {{ $fullRESTName }}
-                port:
-                  number: {{ $restSvcPort }}
-              {{- else }}
-              serviceName: {{ $fullRESTName }}
-              servicePort: {{ $restSvcPort }}
-              {{- end }}
-{{- if or (eq .Values.ingress.className "nginx") (eq .Values.ingress.className "public") }}
----
-{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1
-{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1beta1
-{{- else -}}
-apiVersion: extensions/v1beta1
-{{- end }}
-kind: Ingress
-metadata:
-  name: {{ $fullMQName }}
-  labels:
-    {{- include "netmaker.labels" . | nindent 4 }}
-  {{- with .Values.ingress }}
-  annotations:
-    {{- toYaml .annotations.nginx | nindent 4 }}
-    {{- if and .tls.enabled (eq .tls.issuerName "" )}}
-    {{- toYaml .annotations.tls | nindent 4 }}
-    {{- else if .tls.enabled}}
-    cert-manager.io/cluster-issuer: {{ .tls.issuerName }}
-    {{- end }}
-    {{- with .annotations.mq }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
   {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
   ingressClassName:  {{ required "A valid .Values.ingress.className entry required!" .Values.ingress.className}}
   {{- end }}
-  {{- if .Values.ingress.tls.enabled }}
+  {{- if .Values.ingress.tls }}
   tls:
     - hosts:
-        - {{ .Values.ingress.hostPrefix.broker }}{{ .Values.baseDomain }}
-      secretName: {{ $fullMQName }}-tls-secret
+        - "{{ .Values.ingress.hostPrefix.broker }}.{{ .Values.baseDomain }}"
+        - "{{ .Values.ingress.hostPrefix.rest }}.{{ .Values.baseDomain }}"
+        - "{{ .Values.ingress.hostPrefix.ui }}.{{ .Values.baseDomain }}"
+      secretName: {{ $fullName }}-tls-secret
   {{- end }}
   rules:
-    - host: {{ .Values.ingress.hostPrefix.broker }}{{ .Values.baseDomain }}
+    - host: "{{ .Values.ingress.hostPrefix.broker }}.{{ .Values.baseDomain }}"
       http:
         paths:
           - path: /
@@ -187,49 +52,40 @@ spec:
               serviceName: {{ $fullMQName }}
               servicePort: {{ $mqSvcPort }}
               {{- end }}
+    - host: "{{ .Values.ingress.hostPrefix.rest }}.{{ .Values.baseDomain }}"
+      http:
+        paths:
+          - path: /
+            {{- if (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
+            pathType: Prefix
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $fullRESTName }}
+                port:
+                  number: {{ $restSvcPort }}
+              {{- else }}
+              serviceName: {{ $fullRESTName }}
+              servicePort: {{ $restSvcPort }}
+              {{- end }}
+    - host: "{{ .Values.ingress.hostPrefix.ui }}.{{ .Values.baseDomain }}"
+      http:
+        paths:
+          - path: /
+            {{- if (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
+            pathType: Prefix
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $fullUIName }}
+                port:
+                  number: {{ $uiSvcPort }}
+              {{- else }}
+              serviceName: {{ $fullUIName }}
+              servicePort: {{ $uiSvcPort }}
+              {{- end }}
 {{- end }}
-{{- if eq .Values.ingress.className "traefik" }}
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRouteTCP
-metadata:
-  name: {{ $fullMQName }}
-  labels:
-    {{- include "netmaker.labels" . | nindent 4 }}
-spec:
-  entryPoints:
-    - websecure
-  routes:
-  - match: HostSNI(`{{ .Values.ingress.hostPrefix.mq }}{{ .Values.baseDomain }}`)
-    services:
-    - name: {{ $fullMQName }}
-      port: {{ $mqSvcPort }}
-  tls:
-    passthrough: true
-    secretName: {{ $fullMQName }}-tls-secret
-    domains:
-    - main: {{ .Values.ingress.hostPrefix.mq }}{{ .Values.baseDomain }}
-{{- if and .Values.ingress.tls.enabled (not (eq .Values.ingress.tls.issuerName "" ))}}
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  annotations:
-    acme.cert-manager.io/http01-override-ingress-name: {{ $fullMQName }}
-  labels:
-    {{- include "netmaker.labels" . | nindent 4 }}
-  name: {{ $fullMQName }}-tls-secret
-spec:
-  dnsNames:
-  - {{ .Values.ingress.hostPrefix.mq }}{{ .Values.baseDomain }}
-  issuerRef:
-    group: cert-manager.io
-    kind: ClusterIssuer
-    name:  {{ .Values.ingress.tls.issuerName }}
-  secretName: {{ $fullMQName }}-tls-secret
-  usages:
-  - digital signature
-  - key encipherment
-{{- end }}
-{{- end }}
-{{- end }}
+
+
