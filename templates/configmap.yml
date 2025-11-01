@@ -33,6 +33,7 @@ data:
   SQL_DB: "{{  .Values.db.database }}"
   SQL_USER: "{{ .Values.db.username }}"
   SQL_PASS: "{{ .Values.db.password }}"
+  SQL_SSL_MODE: "{{ .Values.db.sslMode }}"
   JWT_VALIDITY_DURATION: "{{ .Values.server.jwtDuration }}"
   RAC_AUTO_DISABLE: "{{ .Values.server.racAutoDisable }}"
   CACHING_ENABLED: "false" # should be false for HA to work
