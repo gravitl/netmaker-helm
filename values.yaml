@@ -122,6 +122,8 @@ db:
   password: password123 # set your own secure password
   # -- postgress db to generate
   database: netmaker
+  # -- PostgreSQL SSL mode (disable, allow, prefer, require, verify-ca, verify-full)
+  sslMode: require
 
 postgresql-ha:
   # -- whether to install PostgreSQL HA as a dependency
