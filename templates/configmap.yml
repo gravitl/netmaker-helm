@@ -14,6 +14,7 @@ data:
   SERVER_API_CONN_STRING: "{{ .Values.ingress.hostPrefix.rest }}.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}:443"
   COREDNS_ADDR: "SERVER_PUBLIC_IP"
   DNS_MODE: "on"
+  MANAGE_DNS: "true"
   SERVER_HTTP_HOST: "{{ .Values.ingress.hostPrefix.rest }}.{{ required "A valid .Values.baseDomain entry required!" .Values.baseDomain}}"
   API_PORT: "8081"
   MESSAGEQUEUE_BACKEND: "on"
