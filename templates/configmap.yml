@@ -1,6 +1,10 @@
 {{- $dbHost := .Values.db.host  -}}
 {{- if eq $dbHost "" -}}
-{{- $dbHost = printf "%s-postgresql-ha-pgpool.%s.svc.cluster.local"   .Release.Name   .Release.Namespace   -}}
+{{- if eq (default "standalone" .Values.postgresql.architecture) "replication" -}}
+{{- $dbHost = printf "%s-postgresql-primary.%s.svc.cluster.local"   .Release.Name   .Release.Namespace   -}}
+{{- else -}}
+{{- $dbHost = printf "%s-postgresql.%s.svc.cluster.local"   .Release.Name   .Release.Namespace   -}}
+{{- end -}}
 {{- end -}}
 apiVersion: v1
 kind: ConfigMap
