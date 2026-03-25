@@ -153,6 +153,8 @@ postgresql:
   readReplicas:
     # -- 1 replica gives total 2 pods (1 primary + 1 replica)
     replicaCount: 1
+    persistence:
+      size: 1Gi
   primary:
     persistence:
       size: 1Gi
