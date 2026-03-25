@@ -118,6 +118,8 @@ kubectl delete namespace netmaker
 | podAnnotations | object | `{}` | pod annotations to add |
 | podSecurityContext | object | `{}` | pod security contect to add |
 | postgresql.primary.persistence.size | string | `"1Gi"` | size of postgres DB |
+| postgresql.primary.persistence.storageClass | string | `""` | storage class for primary PVC; empty uses cluster default; set to a StorageClass with reclaimPolicy Retain to keep PVs after uninstall |
+| postgresql.readReplicas.persistence.storageClass | string | `""` | storage class for read replica PVCs; same semantics as primary |
 | postgresql.auth.database | string | `"netmaker"` | postgres db to generate |
 | postgresql.auth.password | string | `"password123"` | postgres password |
 | postgresql.auth.username | string | `"postgres"` | postgres user |

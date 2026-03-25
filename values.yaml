@@ -154,7 +154,11 @@ postgresql:
     # -- 1 replica gives total 2 pods (1 primary + 1 replica)
     replicaCount: 1
     persistence:
+      # -- storage class for read replica PVCs; empty uses cluster default. Use a StorageClass with reclaimPolicy Retain if volumes must survive helm uninstall
+      storageClass: ""
       size: 1Gi
   primary:
     persistence:
+      # -- storage class for primary PVC; empty uses cluster default. Use a StorageClass with reclaimPolicy Retain if volumes must survive helm uninstall
+      storageClass: ""
       size: 1Gi
