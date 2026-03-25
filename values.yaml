@@ -39,7 +39,7 @@ ui:
 
 mq:
   # -- how many MQTT replicas to create
-  replicas: 2
+  replicas: 1
   username: netmaker
   password: 3yyerWGdds43yegGR
 server:
