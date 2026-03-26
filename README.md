@@ -127,7 +127,7 @@ kubectl delete namespace netmaker
 | server.storageSize | string | `"128Mi"` | storage  size of server volume |
 | server.masterKey | string | `"netmaker"` | master key for netmaker server |
 | server.replicas | int | `3` | number of netmaker server replicas to create |
-| server.ee.licenseKey | string | `""` | server license key required if using Enterprise version |
+| server.ee.licensekey | string | `""` | server license key required if using Enterprise version |
 | server.ee.tenantId | string | `""` | tenantId of the license required if using Enterprise version |
 | service.mqPort | int | `443` | public port for MQ service |
 | db.type | string | `"postgres"` | type of db server connecting to supported types `"postgres"` `"sqlite"` `"rqlite"` |
