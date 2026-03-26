@@ -3,6 +3,9 @@
 {{- if .Values.mq.existingClaim }}
   {{- $claimName = .Values.mq.existingClaimName -}} 
 {{- end }}
+{{- if gt (int (default 1 .Values.mq.replicas)) 1 }}
+{{- fail "mq.replicas > 1 is not supported; MQTT is single-replica only" }}
+{{- end }}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -15,7 +18,7 @@ spec:
   selector:
     matchLabels:
       app: {{ include "netmaker.fullname" . }}-mqtt
-  replicas:  {{ .Values.mq.replicas }}
+  replicas: 1
   strategy:
     type: Recreate
   template:
