@@ -134,31 +134,36 @@ db:
   # -- postgres sslmode (disable, require, verify-ca, verify-full)
   sslmode: disable
 
-postgresql:
-  # -- whether to install PostgreSQL as a dependency
-  # Set to false and configure db.host for an external database
+postgresql-ha:
+  # -- whether to install PostgreSQL HA as a dependency
+  # Set to false and install PostgreSQL separately to avoid Helm size limits
   enabled: true
-  # -- set replication for 1 primary + read replicas
-  architecture: replication
   global:
     imageRegistry: public.ecr.aws
-    security:
-      allowInsecureImages: true
-  auth:
+
+  postgresql:
+    image:
+      registry: public.ecr.aws
+      repository: bitnami/postgresql-repmgr
+      tag: 18.0.0-debian-12-r12
+      pullPolicy: IfNotPresent
+    # other postgres settings...
+    replicaCount: 2
     username: postgres
     password: password123
     database: netmaker
-    # -- required when architecture=replication
-    replicationPassword: password123
-  readReplicas:
-    # -- 1 replica gives total 2 pods (1 primary + 1 replica)
-    replicaCount: 1
-    persistence:
-      # -- storage class for read replica PVCs; empty uses cluster default. Use a StorageClass with reclaimPolicy Retain if volumes must survive helm uninstall
-      storageClass: ""
-      size: 1Gi
-  primary:
-    persistence:
-      # -- storage class for primary PVC; empty uses cluster default. Use a StorageClass with reclaimPolicy Retain if volumes must survive helm uninstall
-      storageClass: ""
-      size: 1Gi
+    repmgrUsername: repmgr
+    repmgrPassword: password123
+    repmgrDatabase: repmgr
+
+  pgpool:
+    image:
+      registry: public.ecr.aws
+      repository: bitnami/pgpool
+      tag: 4.6.3-debian-12-r5
+      pullPolicy: IfNotPresent
+    # -- pgpool admin password (set to avoid password prompts on upgrades)
+    adminPassword: password123
+
+  persistence:
+    size: 1Gi

@@ -9,7 +9,7 @@ echo "Packaging Netmaker Helm Chart"
 echo "=========================================="
 echo ""
 
-# Step 1: Build dependencies (downloads postgresql chart)
+# Step 1: Build dependencies (downloads postgresql-ha chart)
 echo "Step 1: Building chart dependencies..."
 helm dependency build
 

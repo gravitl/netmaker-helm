@@ -22,7 +22,7 @@ Furthermore, the chart will by default install and use a PostgreSQL instance as 
 
 | Repository | Name | Version |
 |------------|------|---------|
-| oci://registry-1.docker.io/bitnamicharts | postgresql | 16.7.27 |
+| oci://registry-1.docker.io/bitnamicharts | postgresql-ha | 11.8.1 |
 
 
 ### Recommended Settings:
@@ -71,7 +71,7 @@ helm repo add netmaker https://gravitl.github.io/netmaker-helm/
 
 helm repo update
 
-helm install netmaker netmaker/netmaker --set baseDomain=nm.example.com --set server.replicas=3 --set ingress.enabled=true --set ingress.className=nginx --set ingress.annotations.cert-manager\.io/cluster-issuer=letsencrypt-prod --set postgresql.enabled=true --set db.username=postgres --set db.password=password123 --set ui.image.repository=gravitl/netmaker-ui --set ui.image.pullPolicy=Always --set ui.image.tag=v1.1.0 --set server.image.repository=gravitl/netmaker --set server.image.pullPolicy=Always --set server.image.tag=v1.1.0 --namespace netmaker --create-namespace
+helm install netmaker netmaker/netmaker --set baseDomain=nm.example.com --set server.replicas=3 --set ingress.enabled=true --set ingress.className=nginx --set ingress.annotations.cert-manager\.io/cluster-issuer=letsencrypt-prod --set postgresql-ha.enabled=true --set db.username=postgres --set db.password=password123 --set ui.image.repository=gravitl/netmaker-ui --set ui.image.pullPolicy=Always --set ui.image.tag=v1.1.0 --set server.image.repository=gravitl/netmaker --set server.image.pullPolicy=Always --set server.image.tag=v1.1.0 --namespace netmaker --create-namespace
 
 ```
 
@@ -117,12 +117,10 @@ kubectl delete namespace netmaker
 | nameOverride | string | `""` | override the name for netmaker objects  |
 | podAnnotations | object | `{}` | pod annotations to add |
 | podSecurityContext | object | `{}` | pod security contect to add |
-| postgresql.primary.persistence.size | string | `"1Gi"` | size of postgres DB |
-| postgresql.primary.persistence.storageClass | string | `""` | storage class for primary PVC; empty uses cluster default; set to a StorageClass with reclaimPolicy Retain to keep PVs after uninstall |
-| postgresql.readReplicas.persistence.storageClass | string | `""` | storage class for read replica PVCs; same semantics as primary |
-| postgresql.auth.database | string | `"netmaker"` | postgres db to generate |
-| postgresql.auth.password | string | `"password123"` | postgres password |
-| postgresql.auth.username | string | `"postgres"` | postgres user |
+| postgresql-ha.persistence.size | string | `"1Gi"` | size of postgres DB |
+| postgresql-ha.postgresql.database | string | `"netmaker"` | postgres db to generate |
+| postgresql-ha.postgresql.password | string | `"password123"` | postgres password |
+| postgresql-ha.postgresql.username | string | `"postgres"` | postgres user |
 | server.RWX.storageClassName | string | `""` | storage class name of server PVC |
 | server.storageSize | string | `"128Mi"` | storage  size of server volume |
 | server.masterKey | string | `"netmaker"` | master key for netmaker server |
