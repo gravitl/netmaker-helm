@@ -20,10 +20,14 @@ CHART_VERSION=$(grep "^version:" Chart.yaml | awk '{print $2}')
 CHART_NAME=$(grep "^name:" Chart.yaml | awk '{print $2}')
 helm package .
 
-# Step 3: Update repository index
+# Step 3: Update repository index (only netmaker-*.tgz; exclude charts/ vendored dependencies)
 echo ""
 echo "Step 3: Updating repository index..."
-helm repo index . --url https://gravitl.github.io/netmaker-helm/
+INDEX_TMP=$(mktemp -d)
+trap 'rm -rf "$INDEX_TMP"' EXIT
+cp netmaker-*.tgz "$INDEX_TMP/"
+helm repo index "$INDEX_TMP" --url https://gravitl.github.io/netmaker-helm/ --merge index.yaml
+mv "$INDEX_TMP/index.yaml" index.yaml
 
 echo ""
 echo "=========================================="
@@ -35,7 +39,7 @@ echo ""
 echo "Next steps:"
 echo "  1. Review the package: ls -lh ${CHART_NAME}-${CHART_VERSION}.tgz"
 echo "  2. Commit and push changes:"
-echo "     git add Chart.yaml Chart.lock values.yaml ${CHART_NAME}-${CHART_VERSION}.tgz index.yaml"
+echo "     git add Chart.yaml Chart.lock charts/ values.yaml templates/ ${CHART_NAME}-${CHART_VERSION}.tgz index.yaml README.md package.sh"
 echo "     git commit -m 'Update chart to version ${CHART_VERSION}'"
 echo "     git push"
 echo ""

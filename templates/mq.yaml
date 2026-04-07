@@ -1,10 +1,11 @@
+{{- if eq .Values.mq.backend "mosquitto" }}
 {{- $fullName := include "netmaker.fullname" . -}}
 {{- $claimName := printf "%s-%s" $fullName  "shared-data-pvc"  }}
 {{- if .Values.mq.existingClaim }}
   {{- $claimName = .Values.mq.existingClaimName -}} 
 {{- end }}
 {{- if gt (int (default 1 .Values.mq.replicas)) 1 }}
-{{- fail "mq.replicas > 1 is not supported; MQTT is single-replica only" }}
+{{- fail "mq.replicas > 1 is not supported for embedded Mosquitto; use mq.backend=emqx for HA MQTT" }}
 {{- end }}
 
 apiVersion: apps/v1
@@ -145,3 +146,4 @@ metadata:
     app.kubernetes.io/instance: {{ include "netmaker.fullname" . }}-mqtt
     app.kubernetes.io/name: {{ include "netmaker.fullname" . }}-mqtt
   name: {{ include "netmaker.fullname" . }}-mqtt-wait
+{{- end }}

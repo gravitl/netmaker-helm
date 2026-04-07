@@ -1,0 +1,77 @@
+{{- if and .Values.emqx.enabled (eq .Values.mq.backend "emqx") .Values.mq.emqxBootstrap.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "netmaker.fullname" . }}-emqx-bootstrap
+  labels:
+    {{- include "netmaker.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: "10"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 5
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+      labels:
+        {{- include "netmaker.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: bootstrap
+          image: alpine:3.19
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e
+              apk add --no-cache curl jq >/dev/null
+              BASE="http://{{ include "netmaker.brokerServiceName" . }}.{{ .Release.Namespace }}.svc.cluster.local:18083"
+              for i in $(seq 1 60); do
+                if curl -sSf "$BASE/status" >/dev/null 2>&1; then
+                  break
+                fi
+                echo "waiting for EMQX..."
+                sleep 5
+              done
+              TOKEN=$(curl -sS -X POST "$BASE/api/v5/login" \
+                -H "Content-Type: application/json" \
+                -d "{\"username\":\"$DASHBOARD_USER\",\"password\":\"$DASHBOARD_PASS\"}" | jq -r '.token')
+              if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
+                echo "failed to obtain EMQX API token"
+                exit 1
+              fi
+              RESP=$(curl -sS -w "\n%{http_code}" -X POST "$BASE/api/v5/authentication/password_based%3Abuilt_in_database/users" \
+                -H "Authorization: Bearer $TOKEN" \
+                -H "Content-Type: application/json" \
+                -d "{\"user_id\":\"$MQTT_USER\",\"password\":\"$MQTT_PASS\"}")
+              CODE=$(echo "$RESP" | tail -n1)
+              BODY=$(echo "$RESP" | sed '$d')
+              echo "$BODY"
+              if [ "$CODE" = "201" ] || [ "$CODE" = "200" ]; then
+                exit 0
+              fi
+              if [ "$CODE" = "409" ]; then
+                echo "MQTT user already exists"
+                exit 0
+              fi
+              exit 1
+          env:
+            - name: DASHBOARD_USER
+              value: {{ .Values.emqx.emqxConfig.EMQX_DASHBOARD__DEFAULT_USERNAME | default "admin" | quote }}
+            - name: DASHBOARD_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "netmaker.fullname" . }}-emqx-bootstrap
+                  key: dashboard-password
+            - name: MQTT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "netmaker.fullname" . }}-emqx-bootstrap
+                  key: mq-username
+            - name: MQTT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "netmaker.fullname" . }}-emqx-bootstrap
+                  key: mq-password
+{{- end }}

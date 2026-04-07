@@ -1,6 +1,6 @@
 # Netmaker Helm
 
-![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.2.0](https://img.shields.io/badge/AppVersion-1.2.0-informational?style=flat-square)
+![Version: 1.6.0](https://img.shields.io/badge/Version-1.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.5.0](https://img.shields.io/badge/AppVersion-1.5.0-informational?style=flat-square)
 
 A Helm chart to run Netmaker with High Availability on Kubernetes
 
@@ -18,11 +18,12 @@ To run HA Netmaker on Kubernetes, your cluster must have the following:
 	- One option is to set up a Load Balancer which routes broker.domain:443 to the MQTT service on port 8883.
 	- We do not provide guidance beyond this, and recommend using an Ingress Controller that supports websockets.
 
-Furthermore, the chart will by default install and use a PostgreSQL instance as its datastore:
+Furthermore, the chart can install and use optional dependencies:
 
 | Repository | Name | Version |
 |------------|------|---------|
 | oci://registry-1.docker.io/bitnamicharts | postgresql-ha | 11.8.1 |
+| https://repos.emqx.io/charts | emqx (OSS) | 5.8.9 |
 
 
 ### Recommended Settings:
@@ -31,9 +32,17 @@ This install has some notable exceptions:
 - Ingress **must** be configured on your cluster, with cluster issuer for TLS certs
 
 
-#### MQ
+#### MQ (Mosquitto vs EMQX OSS)
 
-The MQ Broker is deployed either with Ingress (Nginx ) preconfigured, or without. If you are using an ingress controller other than Nginx, Netmaker's MQTT will not be complete. "broker.domain"  must reach the MQTT service at port 8883 over WSS (Secure Web Sockets).
+You can run the message broker in three ways, controlled by `mq.backend` and `emqx.enabled`:
+
+- **`mq.backend: mosquitto`** (default): single-replica Eclipse Mosquitto from this chart. Ingress routes `broker.<baseDomain>` to the MQTT Service on port **8883** (WebSocket). In-cluster, Netmaker uses `ws://…-mqtt.<namespace>.svc.cluster.local:1883`.
+- **`mq.backend: emqx`** with **`emqx.enabled: true`**: installs the **EMQX OSS** subchart for HA (default `emqx.replicaCount: 3`). Set `mq.password` and the YAML anchor keeps the EMQX dashboard password in sync (`emqx.emqxConfig.EMQX_DASHBOARD__DEFAULT_PASSWORD`). Ingress should target the EMQX Service **ws** port (**8083** by default). A post-install Job registers `mq.username` / `mq.password` with the EMQX built-in authentication API (disable with `mq.emqxBootstrap.enabled: false` if you manage users yourself).
+- **`mq.backend: external`**: no broker subchart; set `mq.external.serverBrokerEndpoint` (full `ws://…` URL) and `mq.external.serviceName` for ingress when `mq.ingress.brokerEnabled` is true.
+
+`mq.backend: emqx` requires `emqx.enabled: true`. You cannot enable the EMQX subchart while `mq.backend` is `mosquitto` or `external` (validation will fail).
+
+The MQ Broker is deployed either with Ingress (Nginx) preconfigured, or without. If you are using an ingress controller other than Nginx, Netmaker's MQTT will not be complete. "broker.domain" must reach the broker WebSocket listener (Mosquitto **8883**, EMQX **8083** by default) over WSS (Secure Web Sockets).
 
 #### Ingress	
 To run HA Netmaker, you must have ingress installed and enabled on your cluster with valid TLS certificates (not self-signed). If you are running Nginx as your Ingress Controller and LetsEncrypt for TLS certificate management, you can run the helm install with the following settings:
@@ -111,6 +120,15 @@ kubectl delete namespace netmaker
 | ingress.annotations."cert-manager.io/cluster-issuer" | string | `"letsencrypt-prod"` | cert manager cluster issuer name |
 | ingress.enabled | bool | `false` | attempts to configure ingress if true |
 | ingress.hostPrefix.mq | string | `"broker"` | broker route subdomain |
+| mq.backend | string | `"mosquitto"` | `mosquitto`, `emqx`, or `external` |
+| emqx.enabled | bool | `false` | install EMQX OSS subchart (requires `mq.backend: emqx`) |
+| mq.internal.wsPort | int | `8083` | EMQX WebSocket listener port for `SERVER_BROKER_ENDPOINT` |
+| mq.internal.wsPath | string | `"/mqtt"` | WebSocket path for EMQX (set `""` if your clients do not use `/mqtt`) |
+| mq.ingress.brokerEnabled | bool | `true` | include `broker.<domain>` in this chart’s Ingress |
+| mq.ingress.brokerTargetPort | int | `null` | override ingress backend port (default: 8883 Mosquitto, 8083 EMQX) |
+| mq.external.serverBrokerEndpoint | string | `""` | required when `mq.backend: external` |
+| mq.external.serviceName | string | `""` | K8s Service name for broker ingress when `mq.backend: external` |
+| mq.emqxBootstrap.enabled | bool | `true` | run post-install Job to create MQTT user via EMQX API |
 | ingress.hostPrefix.rest | string | `"api"` | api (REST) route subdomain |
 | ingress.hostPrefix.ui | string | `"dashboard"` | ui route subdomain |
 | ingress.tls | bool | `true` |  |

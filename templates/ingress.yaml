@@ -2,10 +2,9 @@
 {{- $fullName := include "netmaker.fullname" . -}}
 {{- $fullUIName := printf "%s-%s" $fullName "ui" -}}
 {{- $fullRESTName := printf "%s-%s" $fullName "rest" -}}
-{{- $fullMQName := printf "%s-%s" $fullName "mqtt" -}}
 {{- $uiSvcPort := .Values.service.uiPort -}}
 {{- $restSvcPort := .Values.service.restPort -}}
-{{- $mqSvcPort := 8883 -}}
+{{- $mqSvcPort := include "netmaker.ingressBrokerPort" . | int -}}
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
 {{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
@@ -29,12 +28,16 @@ spec:
   {{- if .Values.ingress.tls }}
   tls:
     - hosts:
+        {{- if .Values.mq.ingress.brokerEnabled }}
         - "{{ .Values.ingress.hostPrefix.broker }}.{{ .Values.baseDomain }}"
+        {{- end }}
         - "{{ .Values.ingress.hostPrefix.rest }}.{{ .Values.baseDomain }}"
         - "{{ .Values.ingress.hostPrefix.ui }}.{{ .Values.baseDomain }}"
       secretName: {{ $fullName }}-tls-secret
   {{- end }}
   rules:
+    {{- if .Values.mq.ingress.brokerEnabled }}
+    {{- $brokerSvc := include "netmaker.brokerServiceName" . }}
     - host: "{{ .Values.ingress.hostPrefix.broker }}.{{ .Values.baseDomain }}"
       http:
         paths:
@@ -45,13 +48,14 @@ spec:
             backend:
               {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ $fullMQName }}
+                name: {{ $brokerSvc }}
                 port:
                   number: {{ $mqSvcPort }}
               {{- else }}
-              serviceName: {{ $fullMQName }}
+              serviceName: {{ $brokerSvc }}
               servicePort: {{ $mqSvcPort }}
               {{- end }}
+    {{- end }}
     - host: "{{ .Values.ingress.hostPrefix.rest }}.{{ .Values.baseDomain }}"
       http:
         paths:
@@ -87,5 +91,4 @@ spec:
               servicePort: {{ $uiSvcPort }}
               {{- end }}
 {{- end }}
-
 

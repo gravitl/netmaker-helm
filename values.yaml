@@ -38,10 +38,35 @@ ui:
     tag: "v1.5.0"
 
 mq:
-  # -- how many MQTT replicas to create
+  # -- how many MQTT replicas to create (embedded Mosquitto only; ignored for EMQX)
   replicas: 1
   username: netmaker
-  password: 3yyerWGdds43yegGR
+  password: &mqPassword 3yyerWGdds43yegGR
+  # -- broker backend: mosquitto (embedded single-replica), emqx (EMQX OSS subchart), external (BYO broker)
+  backend: mosquitto
+  internal:
+    # -- in-cluster WebSocket port for EMQX (service "ws"); Mosquitto uses 1883 in SERVER_BROKER_ENDPOINT
+    wsPort: 8083
+    # -- WebSocket path for EMQX (default /mqtt); set to "" if your clients expect no path
+    wsPath: "/mqtt"
+  ingress:
+    # -- set false to omit broker.<baseDomain> from this chart (e.g. external EMQX ingress)
+    brokerEnabled: true
+    # -- Service port nginx forwards to for broker WSS (Mosquitto: 8883, EMQX ws: 8083); leave null to derive from mq.backend
+    brokerTargetPort: null
+  external:
+    # -- full SERVER_BROKER_ENDPOINT when mq.backend=external, e.g. ws://my-emqx.ns.svc.cluster.local:8083/mqtt
+    serverBrokerEndpoint: ""
+    # -- Kubernetes Service short name (for validation only; endpoint is serverBrokerEndpoint)
+    serviceName: ""
+    # -- broker ingress backend port when mq.backend=external and ingress.brokerEnabled
+    ingressPort: 8083
+  emqx:
+    # -- override EMQX Service name (default <Release.Name>-emqx); set if emqx.fullnameOverride is set
+    serviceName: ""
+  emqxBootstrap:
+    # -- post-install Job to create MQTT user via EMQX API (mq.username / mq.password)
+    enabled: true
 server:
   # -- number of netmaker server replicas to create
   replicas: 2
@@ -167,3 +192,17 @@ postgresql-ha:
 
   persistence:
     size: 1Gi
+
+# EMQX OSS Helm subchart (https://repos.emqx.io/charts). Requires mq.backend=emqx.
+emqx:
+  enabled: false
+  replicaCount: 3
+  persistence:
+    enabled: true
+    size: 20Mi
+  service:
+    type: ClusterIP
+  emqxConfig:
+    EMQX_CLUSTER__DISCOVERY_STRATEGY: dns
+    EMQX_DASHBOARD__DEFAULT_USERNAME: admin
+    EMQX_DASHBOARD__DEFAULT_PASSWORD: *mqPassword

@@ -22,7 +22,7 @@ data:
   CORS_ALLOWED_ORIGIN: "*"
   DISPLAY_KEYS: "on"
   DATABASE: "{{  .Values.db.type }}"
-  SERVER_BROKER_ENDPOINT: "ws://{{ .Release.Name }}-mqtt.{{ .Release.Namespace }}.svc.cluster.local:1883"
+  SERVER_BROKER_ENDPOINT: {{ include "netmaker.serverBrokerEndpoint" . | quote }}
   VERBOSITY: "1"
   K8s: "true"
   MQ_PASSWORD: "{{ .Values.mq.password }}"

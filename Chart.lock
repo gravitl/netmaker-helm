@@ -2,5 +2,8 @@ dependencies:
 - name: postgresql-ha
   repository: oci://registry-1.docker.io/bitnamicharts
   version: 11.8.1
-digest: sha256:ddaff61bb9babeb74c60564e70ae02e2da3d6396e0324bba991f5ff7cb67c33c
-generated: "2026-04-01T18:58:09.558831+05:30"
+- name: emqx
+  repository: https://repos.emqx.io/charts
+  version: 5.8.9
+digest: sha256:d09be445aa1fe1256d9552e627d3fa9302aa0c762c3cd0ff0e1d78463026806b
+generated: "2026-04-07T23:46:46.071096+05:30"

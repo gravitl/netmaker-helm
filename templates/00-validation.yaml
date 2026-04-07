@@ -1,0 +1,16 @@
+{{- if eq .Values.mq.backend "emqx" }}
+{{- if not .Values.emqx.enabled }}
+{{- fail "mq.backend=emqx requires emqx.enabled=true (or use mq.backend=external with mq.external.serverBrokerEndpoint and mq.external.serviceName)" }}
+{{- end }}
+{{- end }}
+{{- if and .Values.emqx.enabled (eq .Values.mq.backend "mosquitto") }}
+{{- fail "emqx.enabled=true requires mq.backend=emqx (or set emqx.enabled=false)" }}
+{{- end }}
+{{- if and .Values.emqx.enabled (eq .Values.mq.backend "external") }}
+{{- fail "emqx.enabled=true conflicts with mq.backend=external; set emqx.enabled=false" }}
+{{- end }}
+{{- if and .Values.ingress.enabled .Values.mq.ingress.brokerEnabled (eq .Values.mq.backend "external") }}
+{{- if not .Values.mq.external.serviceName }}
+{{- fail "mq.external.serviceName is required when ingress is enabled with mq.ingress.brokerEnabled and mq.backend=external" }}
+{{- end }}
+{{- end }}

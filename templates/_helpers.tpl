@@ -68,3 +68,51 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Kubernetes Service short name for the MQTT broker (used in ingress backend and in-cluster DNS).
+*/}}
+{{- define "netmaker.brokerServiceName" -}}
+{{- if eq .Values.mq.backend "emqx" }}
+{{- if .Values.mq.emqx.serviceName }}
+{{- .Values.mq.emqx.serviceName }}
+{{- else }}
+{{- printf "%s-emqx" .Release.Name }}
+{{- end }}
+{{- else if eq .Values.mq.backend "external" }}
+{{- .Values.mq.external.serviceName }}
+{{- else }}
+{{- printf "%s-mqtt" (include "netmaker.fullname" .) }}
+{{- end }}
+{{- end }}
+
+{{/*
+SERVER_BROKER_ENDPOINT for Netmaker server pods.
+*/}}
+{{- define "netmaker.serverBrokerEndpoint" -}}
+{{- if eq .Values.mq.backend "external" }}
+{{- required "mq.external.serverBrokerEndpoint is required when mq.backend is external" .Values.mq.external.serverBrokerEndpoint }}
+{{- else if eq .Values.mq.backend "emqx" }}
+{{- $host := include "netmaker.brokerServiceName" . }}
+{{- $port := .Values.mq.internal.wsPort | default 8083 }}
+{{- $path := .Values.mq.internal.wsPath | default "/mqtt" }}
+{{- printf "ws://%s.%s.svc.cluster.local:%v%s" $host .Release.Namespace $port $path }}
+{{- else }}
+{{- printf "ws://%s-mqtt.%s.svc.cluster.local:1883" (include "netmaker.fullname" .) .Release.Namespace }}
+{{- end }}
+{{- end }}
+
+{{/*
+Ingress backend port for broker (TLS terminated at ingress; forwards to broker WebSocket listener).
+*/}}
+{{- define "netmaker.ingressBrokerPort" -}}
+{{- if not (empty .Values.mq.ingress.brokerTargetPort) }}
+{{- .Values.mq.ingress.brokerTargetPort }}
+{{- else if eq .Values.mq.backend "emqx" }}
+{{- .Values.mq.internal.wsPort | default 8083 }}
+{{- else if eq .Values.mq.backend "external" }}
+{{- .Values.mq.external.ingressPort }}
+{{- else }}
+8883
+{{- end }}
+{{- end }}
