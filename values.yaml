@@ -35,7 +35,7 @@ ui:
     # -- Pull Policy for images
     pullPolicy: Always
     # -- Override the image tag to pull
-    tag: "v1.5.0"
+    tag: "v1.5.1"
 
 mq:
   # -- how many MQTT replicas to create
@@ -51,7 +51,7 @@ server:
     # -- Pull Policy for images
     pullPolicy: Always
     # -- Override the image tag to pull
-    tag: "v1.5.0"
+    tag: "v1.5.1"
   RWX:
     storageClassName: ""
   storageSize: 128Mi
