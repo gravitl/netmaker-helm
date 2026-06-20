@@ -1,7 +1,4 @@
-{{- $dbHost := .Values.db.host  -}}
-{{- if eq $dbHost "" -}}
-{{- $dbHost = printf "%s-postgresql.%s.svc.cluster.local" (include "netmaker.fullname" .) .Release.Namespace -}}
-{{- end -}}
+{{- $dbHost := include "netmaker.dbHost" . -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:

@@ -68,3 +68,32 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Resolve the PostgreSQL host for application pods.
+*/}}
+{{- define "netmaker.dbHost" -}}
+{{- if .Values.db.host -}}
+{{- .Values.db.host -}}
+{{- else if .Values.postgres.enabled -}}
+{{- printf "%s-postgresql.%s.svc.cluster.local" (include "netmaker.fullname" .) .Release.Namespace -}}
+{{- else -}}
+{{- fail "db.host must be set when postgres.enabled is false" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate Gateway API parentRefs when gateway routing is enabled.
+*/}}
+{{- define "netmaker.validateGatewayParentRefs" -}}
+{{- if .Values.gateway.enabled -}}
+{{- if not .Values.gateway.parentRefs -}}
+{{- fail "gateway.enabled=true requires gateway.parentRefs to be configured (see values.yaml)" -}}
+{{- end -}}
+{{- range .Values.gateway.parentRefs -}}
+{{- if not .name -}}
+{{- fail "gateway.parentRefs[].name must be set when gateway.enabled=true" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
