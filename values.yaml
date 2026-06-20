@@ -128,11 +128,12 @@ gateway:
   enabled: false
   # -- annotations to add to HTTPRoute resources
   annotations: {}
-  # -- parent Gateway references (list)
-  parentRefs:
-    - name: ""
-      namespace: ""
-      sectionName: https
+  # -- parent Gateway references (required when enabled). Example:
+  # parentRefs:
+  #   - name: my-gateway
+  #     namespace: gateway-system
+  #     sectionName: https
+  parentRefs: []
 
 db:
   type: "postgres"
@@ -163,7 +164,7 @@ postgres:
   enabled: true
   image:
     repository: postgres
-    tag: "16"
+    tag: "18"
     pullPolicy: IfNotPresent
   # -- storage size for PostgreSQL data volume
   storageSize: 1Gi

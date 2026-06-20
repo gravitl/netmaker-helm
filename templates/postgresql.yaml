@@ -1,4 +1,7 @@
 {{- if .Values.postgres.enabled }}
+{{- if .Values.db.existingSecret.enabled -}}
+{{- fail "postgres.enabled and db.existingSecret.enabled are mutually exclusive. Use db.existingSecret with postgres.enabled=false for external databases, or db.* values for the bundled PostgreSQL." -}}
+{{- end -}}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -16,6 +19,8 @@ spec:
       labels:
         app: {{ include "netmaker.fullname" . }}-postgresql
     spec:
+      securityContext:
+        fsGroup: 999
       containers:
       - name: postgresql
         image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
@@ -33,26 +38,32 @@ spec:
         - containerPort: 5432
           name: postgresql
           protocol: TCP
+        startupProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - {{ .Values.db.username | quote }}
+            - -d
+            - {{ .Values.db.database | quote }}
+          failureThreshold: 30
+          periodSeconds: 5
         readinessProbe:
           exec:
             command:
             - pg_isready
             - -U
-            - {{ .Values.db.username }}
+            - {{ .Values.db.username | quote }}
             - -d
-            - {{ .Values.db.database }}
-          initialDelaySeconds: 5
+            - {{ .Values.db.database | quote }}
           periodSeconds: 10
         livenessProbe:
-          exec:
-            command:
-            - pg_isready
-            - -U
-            - {{ .Values.db.username }}
-            - -d
-            - {{ .Values.db.database }}
+          tcpSocket:
+            port: postgresql
           initialDelaySeconds: 30
           periodSeconds: 10
+        resources:
+          {{- toYaml .Values.postgres.resources | nindent 10 }}
         volumeMounts:
         - mountPath: /var/lib/postgresql/data
           name: data
@@ -74,6 +85,7 @@ kind: Service
 metadata:
   name: {{ include "netmaker.fullname" . }}-postgresql
 spec:
+  clusterIP: None
   ports:
   - name: postgresql
     port: {{ .Values.db.port }}
@@ -81,5 +93,4 @@ spec:
     targetPort: postgresql
   selector:
     app: {{ include "netmaker.fullname" . }}-postgresql
-  type: ClusterIP
 {{- end }}
