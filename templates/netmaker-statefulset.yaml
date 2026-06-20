@@ -20,6 +20,34 @@ spec:
               envFrom:
                 - configMapRef:
                     name: {{ include "netmaker.fullname" . }}-env
+              {{- if .Values.db.existingSecret.enabled }}
+              env:
+                - name: SQL_HOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.db.existingSecret.name }}
+                      key: {{ .Values.db.existingSecret.keys.host }}
+                - name: SQL_PORT
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.db.existingSecret.name }}
+                      key: {{ .Values.db.existingSecret.keys.port }}
+                - name: SQL_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.db.existingSecret.name }}
+                      key: {{ .Values.db.existingSecret.keys.username }}
+                - name: SQL_PASS
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.db.existingSecret.name }}
+                      key: {{ .Values.db.existingSecret.keys.password }}
+                - name: SQL_DB
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.db.existingSecret.name }}
+                      key: {{ .Values.db.existingSecret.keys.database }}
+              {{- end }}
               image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
               imagePullPolicy: {{ .Values.server.image.pullPolicy }}
               ports:

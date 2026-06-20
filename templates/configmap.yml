@@ -29,11 +29,13 @@ data:
   MQ_USERNAME: "{{ .Values.mq.username }}"
   LICENSE_KEY: "{{ .Values.server.ee.licensekey }}" # needed if EE 
   NETMAKER_TENANT_ID: "{{ .Values.server.ee.tenantId }}" # needed if EE
+  {{- if not .Values.db.existingSecret.enabled }}
   SQL_HOST: "{{ $dbHost }}"
   SQL_PORT: "{{ .Values.db.port }}"
   SQL_DB: "{{  .Values.db.database }}"
   SQL_USER: "{{ .Values.db.username }}"
   SQL_PASS: "{{ .Values.db.password }}"
+  {{- end }}
   SQL_SSL_MODE: "{{ .Values.db.sslmode }}"
   JWT_VALIDITY_DURATION: "{{ .Values.server.jwtDuration }}"
   RAC_AUTO_DISABLE: "{{ .Values.server.racAutoDisable }}"
