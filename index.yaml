@@ -3,9 +3,9 @@ entries:
   netmaker:
   - apiVersion: v2
     appVersion: 1.6.0
-    created: "2026-06-20T19:21:23.727958+05:30"
+    created: "2026-06-20T21:17:56.928038+05:30"
     description: A Helm chart to run HA Netmaker on Kubernetes
-    digest: eae927112379f340e9cd4e130fbe5bba264967c03fa1b335bdbb87f977156673
+    digest: fd8648f239ad4281bfb2308966944d161169cd1718677afb363adf88a7182613
     icon: https://raw.githubusercontent.com/gravitl/netmaker/master/netclient/windowsdata/resource/netclient.ico
     name: netmaker
     type: application
@@ -14,7 +14,7 @@ entries:
     version: 1.6.0
   - apiVersion: v2
     appVersion: 1.5.1
-    created: "2026-06-20T19:21:23.722774+05:30"
+    created: "2026-06-20T21:17:56.92712+05:30"
     dependencies:
     - condition: postgresql-ha.enabled
       name: postgresql-ha
@@ -30,7 +30,7 @@ entries:
     version: 1.5.1
   - apiVersion: v2
     appVersion: 1.5.0
-    created: "2026-06-20T19:21:23.718412+05:30"
+    created: "2026-06-20T21:17:56.920191+05:30"
     dependencies:
     - condition: postgresql-ha.enabled
       name: postgresql-ha
@@ -46,7 +46,7 @@ entries:
     version: 1.5.0
   - apiVersion: v2
     appVersion: 1.4.0
-    created: "2026-06-20T19:21:23.713539+05:30"
+    created: "2026-06-20T21:17:56.915342+05:30"
     dependencies:
     - condition: postgresql-ha.enabled
       name: postgresql-ha
@@ -62,7 +62,7 @@ entries:
     version: 1.4.0
   - apiVersion: v2
     appVersion: 1.2.0
-    created: "2026-06-20T19:21:23.70967+05:30"
+    created: "2026-06-20T21:17:56.907219+05:30"
     dependencies:
     - condition: postgresql-ha.enabled
       name: postgresql-ha
@@ -78,7 +78,7 @@ entries:
     version: 1.2.0
   - apiVersion: v2
     appVersion: 1.1.0
-    created: "2026-06-20T19:21:23.705044+05:30"
+    created: "2026-06-20T21:17:56.899895+05:30"
     dependencies:
     - condition: postgresql-ha.enabled
       name: postgresql-ha
@@ -94,7 +94,7 @@ entries:
     version: 1.1.2
   - apiVersion: v2
     appVersion: 1.1.2
-    created: "2026-06-20T19:21:23.700659+05:30"
+    created: "2026-06-20T21:17:56.893748+05:30"
     dependencies:
     - condition: postgresql-ha.enabled
       name: postgresql-ha
@@ -110,7 +110,7 @@ entries:
     version: 1.1.1
   - apiVersion: v2
     appVersion: 1.1.0
-    created: "2026-06-20T19:21:23.690673+05:30"
+    created: "2026-06-20T21:17:56.850899+05:30"
     dependencies:
     - condition: postgresql-ha.enabled
       name: postgresql-ha
@@ -126,7 +126,7 @@ entries:
     version: 1.1.0
   - apiVersion: v2
     appVersion: 0.21.2
-    created: "2026-06-20T19:21:23.684268+05:30"
+    created: "2026-06-20T21:17:56.840171+05:30"
     dependencies:
     - condition: postgresql-ha.enabled
       name: postgresql-ha
@@ -140,4 +140,4 @@ entries:
     urls:
     - https://gravitl.github.io/netmaker-helm/netmaker-0.3.5.tgz
     version: 0.3.5
-generated: "2026-06-20T19:21:23.671376+05:30"
+generated: "2026-06-20T21:17:56.815102+05:30"
