@@ -1,0 +1,85 @@
+{{- if .Values.postgres.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: {{ include "netmaker.fullname" . }}-postgresql
+  name: {{ include "netmaker.fullname" . }}-postgresql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "netmaker.fullname" . }}-postgresql
+  serviceName: {{ include "netmaker.fullname" . }}-postgresql
+  template:
+    metadata:
+      labels:
+        app: {{ include "netmaker.fullname" . }}-postgresql
+    spec:
+      containers:
+      - name: postgresql
+        image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+        imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
+        env:
+        - name: POSTGRES_USER
+          value: {{ .Values.db.username | quote }}
+        - name: POSTGRES_PASSWORD
+          value: {{ .Values.db.password | quote }}
+        - name: POSTGRES_DB
+          value: {{ .Values.db.database | quote }}
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        ports:
+        - containerPort: 5432
+          name: postgresql
+          protocol: TCP
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - {{ .Values.db.username }}
+            - -d
+            - {{ .Values.db.database }}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - {{ .Values.db.username }}
+            - -d
+            - {{ .Values.db.database }}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      {{- if .Values.postgres.storageClassName }}
+      storageClassName: {{ .Values.postgres.storageClassName }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.postgres.storageSize }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "netmaker.fullname" . }}-postgresql
+spec:
+  ports:
+  - name: postgresql
+    port: {{ .Values.db.port }}
+    protocol: TCP
+    targetPort: postgresql
+  selector:
+    app: {{ include "netmaker.fullname" . }}-postgresql
+  type: ClusterIP
+{{- end }}

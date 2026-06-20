@@ -1,6 +1,6 @@
 # Netmaker Helm
 
-![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.2.0](https://img.shields.io/badge/AppVersion-1.2.0-informational?style=flat-square)
+![Version: 1.6.0](https://img.shields.io/badge/Version-1.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.6.0](https://img.shields.io/badge/AppVersion-1.6.0-informational?style=flat-square)
 
 A Helm chart to run Netmaker with High Availability on Kubernetes
 
@@ -18,11 +18,7 @@ To run HA Netmaker on Kubernetes, your cluster must have the following:
 	- One option is to set up a Load Balancer which routes broker.domain:443 to the MQTT service on port 8883.
 	- We do not provide guidance beyond this, and recommend using an Ingress Controller that supports websockets.
 
-Furthermore, the chart will by default install and use a PostgreSQL instance as its datastore:
-
-| Repository | Name | Version |
-|------------|------|---------|
-| oci://registry-1.docker.io/bitnamicharts | postgresql-ha | 11.8.1 |
+Furthermore, the chart will by default deploy a single PostgreSQL instance using the official `postgres` image as its datastore.
 
 
 ### Recommended Settings:
@@ -71,7 +67,7 @@ helm repo add netmaker https://gravitl.github.io/netmaker-helm/
 
 helm repo update
 
-helm install netmaker netmaker/netmaker --set baseDomain=nm.example.com --set server.replicas=3 --set ingress.enabled=true --set ingress.className=nginx --set ingress.annotations.cert-manager\.io/cluster-issuer=letsencrypt-prod --set postgresql-ha.enabled=true --set db.username=postgres --set db.password=password123 --set ui.image.repository=gravitl/netmaker-ui --set ui.image.pullPolicy=Always --set ui.image.tag=latest --set server.image.repository=gravitl/netmaker --set server.image.pullPolicy=Always --set server.image.tag=latest --namespace netmaker --create-namespace
+helm install netmaker netmaker/netmaker --set baseDomain=nm.example.com --set server.replicas=3 --set ingress.enabled=true --set ingress.className=nginx --set ingress.annotations.cert-manager\.io/cluster-issuer=letsencrypt-prod --set postgres.enabled=true --set db.username=postgres --set db.password=password123 --set ui.image.repository=gravitl/netmaker-ui --set ui.image.pullPolicy=Always --set ui.image.tag=latest --set server.image.repository=gravitl/netmaker --set server.image.pullPolicy=Always --set server.image.tag=latest --namespace netmaker --create-namespace
 
 ```
 
@@ -117,10 +113,13 @@ kubectl delete namespace netmaker
 | nameOverride | string | `""` | override the name for netmaker objects  |
 | podAnnotations | object | `{}` | pod annotations to add |
 | podSecurityContext | object | `{}` | pod security contect to add |
-| postgresql-ha.persistence.size | string | `"1Gi"` | size of postgres DB |
-| postgresql-ha.postgresql.database | string | `"netmaker"` | postgres db to generate |
-| postgresql-ha.postgresql.password | string | `"password123"` | postgres password |
-| postgresql-ha.postgresql.username | string | `"postgres"` | postgres user |
+| db.database | string | `"netmaker"` | db name |
+| db.password | string | `"password123"` | db password |
+| postgres.enabled | bool | `true` | whether to deploy an in-cluster PostgreSQL instance |
+| postgres.image.repository | string | `"postgres"` | PostgreSQL image repository |
+| postgres.image.tag | string | `"16"` | PostgreSQL image tag |
+| postgres.storageSize | string | `"1Gi"` | size of PostgreSQL data volume |
+| postgres.storageClassName | string | `""` | storage class for PostgreSQL PVC |
 | server.RWX.storageClassName | string | `""` | storage class name of server PVC |
 | server.storageSize | string | `"128Mi"` | storage  size of server volume |
 | server.masterKey | string | `"netmaker"` | master key for netmaker server |
@@ -133,7 +132,6 @@ kubectl delete namespace netmaker
 | db.port | int | `5432` | db port |
 | db.username | string | `"postgres"` | db username |
 | db.password | string | `"password123"` | db password |
-| db.database | string | `"netmaker"` | db password |
 | service.restPort | int | `8081` | port for API service |
 | service.type | string | `"ClusterIP"` | type for netmaker server services |
 | service.uiPort | int | `80` | port for UI service |

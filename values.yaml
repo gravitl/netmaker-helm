@@ -35,7 +35,7 @@ ui:
     # -- Pull Policy for images
     pullPolicy: Always
     # -- Override the image tag to pull
-    tag: "v1.5.1"
+    tag: "v1.6.0"
 
 mq:
   # -- how many MQTT replicas to create
@@ -51,7 +51,7 @@ server:
     # -- Pull Policy for images
     pullPolicy: Always
     # -- Override the image tag to pull
-    tag: "v1.5.1"
+    tag: "v1.6.0"
   RWX:
     storageClassName: ""
   storageSize: 128Mi
@@ -158,36 +158,14 @@ db:
       password: "password"
       database: "dbname"
 
-postgresql-ha:
-  # -- whether to install PostgreSQL HA as a dependency
-  # Set to false and install PostgreSQL separately to avoid Helm size limits
+postgres:
+  # -- whether to deploy an in-cluster PostgreSQL instance
   enabled: true
-  global:
-    imageRegistry: public.ecr.aws
-
-  postgresql:
-    image:
-      registry: public.ecr.aws
-      repository: bitnami/postgresql-repmgr
-      tag: 18.0.0-debian-12-r12
-      pullPolicy: IfNotPresent
-    # other postgres settings...
-    replicaCount: 2
-    username: postgres
-    password: password123
-    database: netmaker
-    repmgrUsername: repmgr
-    repmgrPassword: password123
-    repmgrDatabase: repmgr
-
-  pgpool:
-    image:
-      registry: public.ecr.aws
-      repository: bitnami/pgpool
-      tag: 4.6.3-debian-12-r5
-      pullPolicy: IfNotPresent
-    # -- pgpool admin password (set to avoid password prompts on upgrades)
-    adminPassword: password123
-
-  persistence:
-    size: 1Gi
+  image:
+    repository: postgres
+    tag: "16"
+    pullPolicy: IfNotPresent
+  # -- storage size for PostgreSQL data volume
+  storageSize: 1Gi
+  # -- storage class for PostgreSQL PVC (uses cluster default if empty)
+  storageClassName: ""
