@@ -122,6 +122,18 @@ ingress:
     ui: "dashboard"
     broker: "broker"
     rest: "api"
+
+gateway:
+  # -- create Gateway API HTTPRoutes instead of (or in addition to) Ingress
+  enabled: false
+  # -- annotations to add to HTTPRoute resources
+  annotations: {}
+  # -- parent Gateway references (list)
+  parentRefs:
+    - name: ""
+      namespace: ""
+      sectionName: https
+
 db:
   type: "postgres"
   host: ""
@@ -133,6 +145,18 @@ db:
   database: netmaker
   # -- postgres sslmode (disable, require, verify-ca, verify-full)
   sslmode: disable
+  # -- use an existing Kubernetes secret for DB credentials instead of values above
+  existingSecret:
+    enabled: false
+    # -- name of the existing secret
+    name: ""
+    # -- key mappings: maps each DB parameter to a key in the secret
+    keys:
+      host: "pgbouncer-host"
+      port: "pgbouncer-port"
+      username: "user"
+      password: "password"
+      database: "dbname"
 
 postgres:
   # -- whether to deploy an in-cluster PostgreSQL instance
