@@ -169,3 +169,10 @@ postgres:
   storageSize: 1Gi
   # -- storage class for PostgreSQL PVC (uses cluster default if empty)
   storageClassName: ""
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 512Mi
