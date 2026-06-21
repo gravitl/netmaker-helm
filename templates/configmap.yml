@@ -1,4 +1,5 @@
-{{- $dbHost := include "netmaker.dbHost" . -}}
+{{- include "netmaker.validateExistingSecret" . -}}
+{{- include "netmaker.validateRouting" . -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -27,6 +28,7 @@ data:
   LICENSE_KEY: "{{ .Values.server.ee.licensekey }}" # needed if EE 
   NETMAKER_TENANT_ID: "{{ .Values.server.ee.tenantId }}" # needed if EE
   {{- if not .Values.db.existingSecret.enabled }}
+  {{- $dbHost := include "netmaker.dbHost" . -}}
   SQL_HOST: "{{ $dbHost }}"
   SQL_PORT: "{{ .Values.db.port }}"
   SQL_DB: "{{  .Values.db.database }}"

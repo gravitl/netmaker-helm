@@ -1,3 +1,4 @@
+{{- include "netmaker.validateRouting" . -}}
 {{- include "netmaker.validateGatewayParentRefs" . -}}
 {{- if .Values.gateway.enabled -}}
 {{- $fullName := include "netmaker.fullname" . -}}

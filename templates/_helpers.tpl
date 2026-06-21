@@ -77,8 +77,30 @@ Resolve the PostgreSQL host for application pods.
 {{- .Values.db.host -}}
 {{- else if .Values.postgres.enabled -}}
 {{- printf "%s-postgresql.%s.svc.cluster.local" (include "netmaker.fullname" .) .Release.Namespace -}}
+{{- else if .Values.db.existingSecret.enabled -}}
+{{- "" -}}
 {{- else -}}
 {{- fail "db.host must be set when postgres.enabled is false" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate db.existingSecret configuration.
+*/}}
+{{- define "netmaker.validateExistingSecret" -}}
+{{- if .Values.db.existingSecret.enabled -}}
+{{- if not .Values.db.existingSecret.name -}}
+{{- fail "db.existingSecret.name must be set when db.existingSecret.enabled=true" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate ingress and gateway routing are not both enabled.
+*/}}
+{{- define "netmaker.validateRouting" -}}
+{{- if and .Values.ingress.enabled .Values.gateway.enabled -}}
+{{- fail "ingress.enabled and gateway.enabled are mutually exclusive; enable only one routing mode" -}}
 {{- end -}}
 {{- end -}}
 
