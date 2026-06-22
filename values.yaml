@@ -164,7 +164,7 @@ postgres:
   enabled: true
   image:
     repository: postgres
-    tag: "18"
+    tag: "18.0-bookworm"
     pullPolicy: IfNotPresent
   # -- storage size for PostgreSQL data volume
   storageSize: 1Gi

@@ -162,7 +162,7 @@ kubectl delete namespace netmaker
 | db.password | string | `"password123"` | db password |
 | postgres.enabled | bool | `true` | whether to deploy an in-cluster PostgreSQL instance |
 | postgres.image.repository | string | `"postgres"` | PostgreSQL image repository |
-| postgres.image.tag | string | `"18"` | PostgreSQL image tag |
+| postgres.image.tag | string | `"18.0-bookworm"` | PostgreSQL image tag |
 | postgres.storageSize | string | `"1Gi"` | size of PostgreSQL data volume |
 | postgres.storageClassName | string | `""` | storage class for PostgreSQL PVC |
 | postgres.resources | object | `{requests: {cpu: 250m, memory: 256Mi}, limits: {cpu: 1000m, memory: 512Mi}}` | CPU/memory requests and limits for PostgreSQL |
