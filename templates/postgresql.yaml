@@ -2,22 +2,23 @@
 {{- if .Values.db.existingSecret.enabled -}}
 {{- fail "postgres.enabled and db.existingSecret.enabled are mutually exclusive. Use db.existingSecret with postgres.enabled=false for external databases, or db.* values for the bundled PostgreSQL." -}}
 {{- end -}}
+{{- $pgName := include "netmaker.postgresql.fullname" . -}}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: {{ include "netmaker.fullname" . }}-postgresql
-  name: {{ include "netmaker.fullname" . }}-postgresql
+    app: {{ $pgName }}
+  name: {{ $pgName }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ include "netmaker.fullname" . }}-postgresql
-  serviceName: {{ include "netmaker.fullname" . }}-postgresql
+      app: {{ $pgName }}
+  serviceName: {{ $pgName }}
   template:
     metadata:
       labels:
-        app: {{ include "netmaker.fullname" . }}-postgresql
+        app: {{ $pgName }}
     spec:
       securityContext:
         fsGroup: 999
@@ -83,7 +84,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "netmaker.fullname" . }}-postgresql
+  name: {{ $pgName }}
 spec:
   clusterIP: None
   ports:
@@ -92,5 +93,5 @@ spec:
     protocol: TCP
     targetPort: postgresql
   selector:
-    app: {{ include "netmaker.fullname" . }}-postgresql
+    app: {{ $pgName }}
 {{- end }}

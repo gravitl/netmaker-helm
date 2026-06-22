@@ -20,6 +20,53 @@ To run HA Netmaker on Kubernetes, your cluster must have the following:
 
 Furthermore, the chart will by default deploy a single PostgreSQL instance using the official `postgres` image as its datastore.
 
+## PostgreSQL
+
+### What changed in chart 1.6.0
+
+Chart **1.6.0** removes the Bitnami `postgresql-ha` subchart. The following values are **deprecated and no longer supported**:
+
+| Deprecated (≤ 1.5.x) | Replacement (1.6.0) |
+|----------------------|------------------------|
+| `postgresql-ha.enabled` | `postgres.enabled` |
+| `postgresql-ha.postgresql.*` | `db.username`, `db.password`, `db.database` |
+| `postgresql-ha.persistence.size` | `postgres.storageSize` |
+| `postgresql-ha.pgpool.*` | *(removed)* |
+
+When `postgres.enabled=true` (default), the chart deploys a **single-replica** PostgreSQL StatefulSet using the official [`postgres`](https://hub.docker.com/_/postgres) image. This is intended for **development, testing, and quick starts** only.
+
+### Production recommendations
+
+For production workloads, **do not rely on the bundled PostgreSQL**. Use a dedicated database layer instead, for example:
+
+- **[CloudNativePG](https://cloudnative-pg.io/)** — PostgreSQL operator for Kubernetes (HA, backups, failover)
+- **Managed PostgreSQL** — AWS RDS, Google Cloud SQL, Azure Database for PostgreSQL, DigitalOcean Managed Databases, etc.
+
+Point Netmaker at your external database:
+
+```bash
+helm install netmaker netmaker/netmaker \
+  --set baseDomain=nm.example.com \
+  --set postgres.enabled=false \
+  --set db.host=<your-postgres-host> \
+  --set db.port=5432 \
+  --set db.username=postgres \
+  --set db.password=<your-password> \
+  --set db.database=netmaker
+```
+
+Or supply credentials from an existing Kubernetes Secret:
+
+```bash
+helm install netmaker netmaker/netmaker \
+  --set baseDomain=nm.example.com \
+  --set postgres.enabled=false \
+  --set db.existingSecret.enabled=true \
+  --set db.existingSecret.name=<secret-name>
+```
+
+**Note:** `postgres.enabled` and `db.host` are mutually exclusive. Set `postgres.enabled=false` whenever using an external or operator-managed database.
+
 
 ### Recommended Settings:
 

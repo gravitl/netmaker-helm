@@ -70,17 +70,33 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+PostgreSQL resource name (truncated to satisfy the 63-character DNS label limit).
+*/}}
+{{- define "netmaker.postgresql.fullname" -}}
+{{- printf "%s-postgresql" (include "netmaker.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Resolve the PostgreSQL host for application pods.
 */}}
 {{- define "netmaker.dbHost" -}}
 {{- if .Values.db.host -}}
 {{- .Values.db.host -}}
 {{- else if .Values.postgres.enabled -}}
-{{- printf "%s-postgresql.%s.svc.cluster.local" (include "netmaker.fullname" .) .Release.Namespace -}}
+{{- printf "%s.%s.svc.cluster.local" (include "netmaker.postgresql.fullname" .) .Release.Namespace -}}
 {{- else if .Values.db.existingSecret.enabled -}}
 {{- "" -}}
 {{- else -}}
 {{- fail "db.host must be set when postgres.enabled is false" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate bundled PostgreSQL configuration.
+*/}}
+{{- define "netmaker.validatePostgres" -}}
+{{- if and .Values.postgres.enabled .Values.db.host -}}
+{{- fail "postgres.enabled and db.host are mutually exclusive; set postgres.enabled=false when using an external database" -}}
 {{- end -}}
 {{- end -}}
 

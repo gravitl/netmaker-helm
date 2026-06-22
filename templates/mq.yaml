@@ -28,37 +28,11 @@ spec:
     spec:
       containers:
       - name: mosquitto
-        envFrom:
-          - configMapRef:
-              name: {{ include "netmaker.fullname" . }}-env
-        {{- if .Values.db.existingSecret.enabled }}
         env:
-          - name: SQL_HOST
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.db.existingSecret.name }}
-                key: {{ .Values.db.existingSecret.keys.host }}
-          - name: SQL_PORT
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.db.existingSecret.name }}
-                key: {{ .Values.db.existingSecret.keys.port }}
-          - name: SQL_USER
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.db.existingSecret.name }}
-                key: {{ .Values.db.existingSecret.keys.username }}
-          - name: SQL_PASS
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.db.existingSecret.name }}
-                key: {{ .Values.db.existingSecret.keys.password }}
-          - name: SQL_DB
-            valueFrom:
-              secretKeyRef:
-                name: {{ .Values.db.existingSecret.name }}
-                key: {{ .Values.db.existingSecret.keys.database }}
-        {{- end }}
+        - name: MQ_USERNAME
+          value: {{ .Values.mq.username | quote }}
+        - name: MQ_PASSWORD
+          value: {{ .Values.mq.password | quote }}
         image: eclipse-mosquitto:2.0.11-openssl
         command: ["/mosquitto/config/wait.sh"]
         imagePullPolicy: Always
