@@ -104,6 +104,19 @@ The ClusterIssuer will be created with the name specified in `certManager.issuer
 **Note:** If you already have a ClusterIssuer in your cluster, leave `certManager.enabled=false` and just set the ingress annotation to reference your existing issuer:
 `--set ingress.annotations.cert-manager\.io/cluster-issuer=<your-issuer-name>`
 
+#### Gateway API
+
+As an alternative to Ingress, the chart can create Gateway API HTTPRoutes for the dashboard, API, and broker endpoints. **Do not enable both** — `ingress.enabled` and `gateway.enabled` are mutually exclusive.
+
+To use Gateway API routing:
+
+```bash
+--set ingress.enabled=false \
+--set gateway.enabled=true
+```
+
+Configure `gateway.parentRefs` to point at your cluster Gateway (see `values.yaml` for an example). HTTPRoutes are created for the same hostnames as Ingress (`dashboard.<baseDomain>`, `api.<baseDomain>`, `broker.<baseDomain>`).
+
 
 
 ## Install Command
@@ -155,6 +168,8 @@ kubectl delete namespace netmaker
 | ingress.hostPrefix.rest | string | `"api"` | api (REST) route subdomain |
 | ingress.hostPrefix.ui | string | `"dashboard"` | ui route subdomain |
 | ingress.tls | bool | `true` |  |
+| gateway.enabled | bool | `false` | create Gateway API HTTPRoutes instead of Ingress (mutually exclusive with ingress.enabled) |
+| gateway.parentRefs | list | `[]` | parent Gateway references (required when gateway.enabled=true) |
 | nameOverride | string | `""` | override the name for netmaker objects  |
 | podAnnotations | object | `{}` | pod annotations to add |
 | podSecurityContext | object | `{}` | pod security contect to add |

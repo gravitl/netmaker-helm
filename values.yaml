@@ -124,7 +124,7 @@ ingress:
     rest: "api"
 
 gateway:
-  # -- create Gateway API HTTPRoutes instead of (or in addition to) Ingress
+  # -- create Gateway API HTTPRoutes instead of Ingress. Mutually exclusive with ingress.enabled — enable only one routing mode.
   enabled: false
   # -- annotations to add to HTTPRoute resources
   annotations: {}
