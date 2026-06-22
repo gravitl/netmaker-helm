@@ -59,10 +59,16 @@ spec:
             - {{ .Values.db.database | quote }}
           periodSeconds: 10
         livenessProbe:
-          tcpSocket:
-            port: postgresql
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - {{ .Values.db.username | quote }}
+            - -d
+            - {{ .Values.db.database | quote }}
           initialDelaySeconds: 30
-          periodSeconds: 10
+          periodSeconds: 15
+          failureThreshold: 5
         resources:
           {{- toYaml .Values.postgres.resources | nindent 10 }}
         volumeMounts:

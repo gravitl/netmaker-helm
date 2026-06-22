@@ -101,6 +101,15 @@ Validate bundled PostgreSQL configuration.
 {{- end -}}
 
 {{/*
+Reject deprecated postgresql-ha values from chart <= 1.5.x.
+*/}}
+{{- define "netmaker.validateDeprecatedPostgresqlHa" -}}
+{{- if hasKey .Values "postgresql-ha" -}}
+{{- fail "postgresql-ha.* values were removed in chart 1.6.0. Remove all postgresql-ha settings and use postgres.* and db.* instead. See the README \"PostgreSQL\" section for the migration guide." -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Validate db.existingSecret configuration.
 */}}
 {{- define "netmaker.validateExistingSecret" -}}
