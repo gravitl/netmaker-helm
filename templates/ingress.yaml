@@ -1,3 +1,4 @@
+{{- include "netmaker.validateRouting" . -}}
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "netmaker.fullname" . -}}
 {{- $fullUIName := printf "%s-%s" $fullName "ui" -}}

@@ -1,0 +1,103 @@
+{{- if .Values.postgres.enabled }}
+{{- if .Values.db.existingSecret.enabled -}}
+{{- fail "postgres.enabled and db.existingSecret.enabled are mutually exclusive. Use db.existingSecret with postgres.enabled=false for external databases, or db.* values for the bundled PostgreSQL." -}}
+{{- end -}}
+{{- $pgName := include "netmaker.postgresql.fullname" . -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: {{ $pgName }}
+  name: {{ $pgName }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $pgName }}
+  serviceName: {{ $pgName }}
+  template:
+    metadata:
+      labels:
+        app: {{ $pgName }}
+    spec:
+      securityContext:
+        fsGroup: 999
+      containers:
+      - name: postgresql
+        image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+        imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
+        env:
+        - name: POSTGRES_USER
+          value: {{ .Values.db.username | quote }}
+        - name: POSTGRES_PASSWORD
+          value: {{ .Values.db.password | quote }}
+        - name: POSTGRES_DB
+          value: {{ .Values.db.database | quote }}
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        ports:
+        - containerPort: 5432
+          name: postgresql
+          protocol: TCP
+        startupProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - {{ .Values.db.username | quote }}
+            - -d
+            - {{ .Values.db.database | quote }}
+          failureThreshold: 30
+          periodSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - {{ .Values.db.username | quote }}
+            - -d
+            - {{ .Values.db.database | quote }}
+          periodSeconds: 10
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - {{ .Values.db.username | quote }}
+            - -d
+            - {{ .Values.db.database | quote }}
+          initialDelaySeconds: 30
+          periodSeconds: 15
+          failureThreshold: 5
+        resources:
+          {{- toYaml .Values.postgres.resources | nindent 10 }}
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      {{- if .Values.postgres.storageClassName }}
+      storageClassName: {{ .Values.postgres.storageClassName }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.postgres.storageSize }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $pgName }}
+spec:
+  clusterIP: None
+  ports:
+  - name: postgresql
+    port: {{ .Values.db.port }}
+    protocol: TCP
+    targetPort: postgresql
+  selector:
+    app: {{ $pgName }}
+{{- end }}

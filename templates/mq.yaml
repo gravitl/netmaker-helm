@@ -28,9 +28,11 @@ spec:
     spec:
       containers:
       - name: mosquitto
-        envFrom:
-          - configMapRef:
-              name: {{ include "netmaker.fullname" . }}-env
+        env:
+        - name: MQ_USERNAME
+          value: {{ .Values.mq.username | quote }}
+        - name: MQ_PASSWORD
+          value: {{ .Values.mq.password | quote }}
         image: eclipse-mosquitto:2.0.11-openssl
         command: ["/mosquitto/config/wait.sh"]
         imagePullPolicy: Always

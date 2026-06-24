@@ -1,6 +1,6 @@
 # Netmaker Helm
 
-![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.2.0](https://img.shields.io/badge/AppVersion-1.2.0-informational?style=flat-square)
+![Version: 1.6.0](https://img.shields.io/badge/Version-1.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.6.0](https://img.shields.io/badge/AppVersion-1.6.0-informational?style=flat-square)
 
 A Helm chart to run Netmaker with High Availability on Kubernetes
 
@@ -18,11 +18,54 @@ To run HA Netmaker on Kubernetes, your cluster must have the following:
 	- One option is to set up a Load Balancer which routes broker.domain:443 to the MQTT service on port 8883.
 	- We do not provide guidance beyond this, and recommend using an Ingress Controller that supports websockets.
 
-Furthermore, the chart will by default install and use a PostgreSQL instance as its datastore:
+Furthermore, the chart will by default deploy a single PostgreSQL instance using the official `postgres` image as its datastore.
 
-| Repository | Name | Version |
-|------------|------|---------|
-| oci://registry-1.docker.io/bitnamicharts | postgresql-ha | 11.8.1 |
+## PostgreSQL
+
+### What changed in chart 1.6.0
+
+Chart **1.6.0** removes the Bitnami `postgresql-ha` subchart. The following values are **deprecated and no longer supported**:
+
+| Deprecated (≤ 1.5.x) | Replacement (1.6.0) |
+|----------------------|------------------------|
+| `postgresql-ha.enabled` | `postgres.enabled` |
+| `postgresql-ha.postgresql.*` | `db.username`, `db.password`, `db.database` |
+| `postgresql-ha.persistence.size` | `postgres.storageSize` |
+| `postgresql-ha.pgpool.*` | *(removed)* |
+
+When `postgres.enabled=true` (default), the chart deploys a **single-replica** PostgreSQL StatefulSet using the official [`postgres`](https://hub.docker.com/_/postgres) image. This is intended for **development, testing, and quick starts** only.
+
+### Production recommendations
+
+For production workloads, **do not rely on the bundled PostgreSQL**. Use a dedicated database layer instead, for example:
+
+- **[CloudNativePG](https://cloudnative-pg.io/)** — PostgreSQL operator for Kubernetes (HA, backups, failover)
+- **Managed PostgreSQL** — AWS RDS, Google Cloud SQL, Azure Database for PostgreSQL, DigitalOcean Managed Databases, etc.
+
+Point Netmaker at your external database:
+
+```bash
+helm install netmaker netmaker/netmaker \
+  --set baseDomain=nm.example.com \
+  --set postgres.enabled=false \
+  --set db.host=<your-postgres-host> \
+  --set db.port=5432 \
+  --set db.username=postgres \
+  --set db.password=<your-password> \
+  --set db.database=netmaker
+```
+
+Or supply credentials from an existing Kubernetes Secret:
+
+```bash
+helm install netmaker netmaker/netmaker \
+  --set baseDomain=nm.example.com \
+  --set postgres.enabled=false \
+  --set db.existingSecret.enabled=true \
+  --set db.existingSecret.name=<secret-name>
+```
+
+**Note:** `postgres.enabled` and `db.host` are mutually exclusive. Set `postgres.enabled=false` whenever using an external or operator-managed database.
 
 
 ### Recommended Settings:
@@ -61,6 +104,19 @@ The ClusterIssuer will be created with the name specified in `certManager.issuer
 **Note:** If you already have a ClusterIssuer in your cluster, leave `certManager.enabled=false` and just set the ingress annotation to reference your existing issuer:
 `--set ingress.annotations.cert-manager\.io/cluster-issuer=<your-issuer-name>`
 
+#### Gateway API
+
+As an alternative to Ingress, the chart can create Gateway API HTTPRoutes for the dashboard, API, and broker endpoints. **Do not enable both** — `ingress.enabled` and `gateway.enabled` are mutually exclusive.
+
+To use Gateway API routing:
+
+```bash
+--set ingress.enabled=false \
+--set gateway.enabled=true
+```
+
+Configure `gateway.parentRefs` to point at your cluster Gateway (see `values.yaml` for an example). HTTPRoutes are created for the same hostnames as Ingress (`dashboard.<baseDomain>`, `api.<baseDomain>`, `broker.<baseDomain>`).
+
 
 
 ## Install Command
@@ -71,7 +127,7 @@ helm repo add netmaker https://gravitl.github.io/netmaker-helm/
 
 helm repo update
 
-helm install netmaker netmaker/netmaker --set baseDomain=nm.example.com --set server.replicas=3 --set ingress.enabled=true --set ingress.className=nginx --set ingress.annotations.cert-manager\.io/cluster-issuer=letsencrypt-prod --set postgresql-ha.enabled=true --set db.username=postgres --set db.password=password123 --set ui.image.repository=gravitl/netmaker-ui --set ui.image.pullPolicy=Always --set ui.image.tag=latest --set server.image.repository=gravitl/netmaker --set server.image.pullPolicy=Always --set server.image.tag=latest --namespace netmaker --create-namespace
+helm install netmaker netmaker/netmaker --set baseDomain=nm.example.com --set server.replicas=3 --set ingress.enabled=true --set ingress.className=nginx --set ingress.annotations.cert-manager\.io/cluster-issuer=letsencrypt-prod --set postgres.enabled=true --set db.username=postgres --set db.password=password123 --set ui.image.repository=gravitl/netmaker-ui --set ui.image.pullPolicy=Always --set ui.image.tag=latest --set server.image.repository=gravitl/netmaker --set server.image.pullPolicy=Always --set server.image.tag=latest --namespace netmaker --create-namespace
 
 ```
 
@@ -90,8 +146,6 @@ kubectl get svc -n netmaker
 helm uninstall netmaker -n netmaker
 kubectl delete namespace netmaker
 ```
-
-
 
 ## Values
 
@@ -114,13 +168,19 @@ kubectl delete namespace netmaker
 | ingress.hostPrefix.rest | string | `"api"` | api (REST) route subdomain |
 | ingress.hostPrefix.ui | string | `"dashboard"` | ui route subdomain |
 | ingress.tls | bool | `true` |  |
+| gateway.enabled | bool | `false` | create Gateway API HTTPRoutes instead of Ingress (mutually exclusive with ingress.enabled) |
+| gateway.parentRefs | list | `[]` | parent Gateway references (required when gateway.enabled=true) |
 | nameOverride | string | `""` | override the name for netmaker objects  |
 | podAnnotations | object | `{}` | pod annotations to add |
 | podSecurityContext | object | `{}` | pod security contect to add |
-| postgresql-ha.persistence.size | string | `"1Gi"` | size of postgres DB |
-| postgresql-ha.postgresql.database | string | `"netmaker"` | postgres db to generate |
-| postgresql-ha.postgresql.password | string | `"password123"` | postgres password |
-| postgresql-ha.postgresql.username | string | `"postgres"` | postgres user |
+| db.database | string | `"netmaker"` | db name |
+| db.password | string | `"password123"` | db password |
+| postgres.enabled | bool | `true` | whether to deploy an in-cluster PostgreSQL instance |
+| postgres.image.repository | string | `"postgres"` | PostgreSQL image repository |
+| postgres.image.tag | string | `"18.0-bookworm"` | PostgreSQL image tag |
+| postgres.storageSize | string | `"1Gi"` | size of PostgreSQL data volume |
+| postgres.storageClassName | string | `""` | storage class for PostgreSQL PVC |
+| postgres.resources | object | `{requests: {cpu: 250m, memory: 256Mi}, limits: {cpu: 1000m, memory: 512Mi}}` | CPU/memory requests and limits for PostgreSQL |
 | server.RWX.storageClassName | string | `""` | storage class name of server PVC |
 | server.storageSize | string | `"128Mi"` | storage  size of server volume |
 | server.masterKey | string | `"netmaker"` | master key for netmaker server |
@@ -133,7 +193,6 @@ kubectl delete namespace netmaker
 | db.port | int | `5432` | db port |
 | db.username | string | `"postgres"` | db username |
 | db.password | string | `"password123"` | db password |
-| db.database | string | `"netmaker"` | db password |
 | service.restPort | int | `8081` | port for API service |
 | service.type | string | `"ClusterIP"` | type for netmaker server services |
 | service.uiPort | int | `80` | port for UI service |

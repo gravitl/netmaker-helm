@@ -68,3 +68,79 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+PostgreSQL resource name (truncated to satisfy the 63-character DNS label limit).
+*/}}
+{{- define "netmaker.postgresql.fullname" -}}
+{{- printf "%s-postgresql" (include "netmaker.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Resolve the PostgreSQL host for application pods.
+*/}}
+{{- define "netmaker.dbHost" -}}
+{{- if .Values.db.host -}}
+{{- .Values.db.host -}}
+{{- else if .Values.postgres.enabled -}}
+{{- printf "%s.%s.svc.cluster.local" (include "netmaker.postgresql.fullname" .) .Release.Namespace -}}
+{{- else if .Values.db.existingSecret.enabled -}}
+{{- "" -}}
+{{- else -}}
+{{- fail "db.host must be set when postgres.enabled is false" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate bundled PostgreSQL configuration.
+*/}}
+{{- define "netmaker.validatePostgres" -}}
+{{- if and .Values.postgres.enabled .Values.db.host -}}
+{{- fail "postgres.enabled and db.host are mutually exclusive; set postgres.enabled=false when using an external database" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Reject deprecated postgresql-ha values from chart <= 1.5.x.
+*/}}
+{{- define "netmaker.validateDeprecatedPostgresqlHa" -}}
+{{- if hasKey .Values "postgresql-ha" -}}
+{{- fail "postgresql-ha.* values were removed in chart 1.6.0. Remove all postgresql-ha settings and use postgres.* and db.* instead. See the README \"PostgreSQL\" section for the migration guide." -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate db.existingSecret configuration.
+*/}}
+{{- define "netmaker.validateExistingSecret" -}}
+{{- if .Values.db.existingSecret.enabled -}}
+{{- if not .Values.db.existingSecret.name -}}
+{{- fail "db.existingSecret.name must be set when db.existingSecret.enabled=true" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate ingress and gateway routing are not both enabled.
+*/}}
+{{- define "netmaker.validateRouting" -}}
+{{- if and .Values.ingress.enabled .Values.gateway.enabled -}}
+{{- fail "ingress.enabled and gateway.enabled are mutually exclusive; enable only one routing mode" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate Gateway API parentRefs when gateway routing is enabled.
+*/}}
+{{- define "netmaker.validateGatewayParentRefs" -}}
+{{- if .Values.gateway.enabled -}}
+{{- if not .Values.gateway.parentRefs -}}
+{{- fail "gateway.enabled=true requires gateway.parentRefs to be configured (see values.yaml)" -}}
+{{- end -}}
+{{- range .Values.gateway.parentRefs -}}
+{{- if not .name -}}
+{{- fail "gateway.parentRefs[].name must be set when gateway.enabled=true" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
